@@ -1,3 +1,6 @@
+#ifndef STRUCTS_H
+#define STRUCTS_H
+
 typedef struct {
     int width;
     int height;
@@ -26,3 +29,34 @@ typedef struct {
     SDL_Surface *charset;
     SDL_Surface *objects;
 } game_t;
+
+
+typedef struct {
+    int x;
+    int y;
+} point_t;
+
+typedef enum {
+    NONE = -1,
+    RIGHT = 0,
+    DOWN = 1,
+    LEFT = 2,
+    UP = 3,
+    LEFTUP = 4,
+    LEFTDOWN = 5,
+    RIGHTDOWN = 6,
+    RIGHTUP = 7,
+} direction_et;
+
+typedef enum {
+    HEAD = 0,
+    BODY = 1,
+    TAIL = 2,
+} snake_type_et;
+
+typedef struct {
+    snake_type_et type;
+    direction_et direction;
+} snake_t;
+
+#endif
