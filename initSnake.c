@@ -61,7 +61,11 @@ void initSDL(config_t config, game_t *game) {
 
 void initAssets(game_t *game) {
     game->charset = SDL_LoadBMP("../assets/cs8x8.bmp");
-    game->objects = SDL_LoadBMP("../assets/snake.bmp");
+    if (DEBUG)
+        game->objects = SDL_LoadBMP("../assets/snakeDEBUG.bmp");
+    else
+        game->objects = SDL_LoadBMP("../assets/snake.bmp");
+
 
     if (!game->charset || !game->objects){
         SDL_LogError(0, "Failed to load assets: %s\n", SDL_GetError());

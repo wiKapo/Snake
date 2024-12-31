@@ -21,49 +21,49 @@ void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface
     }
 }
 
-snake_t GetDirection(const point_t last, const point_t curr, const point_t next) {
-    snake_t snakeDir = {BODY, NONE};
+part_t GetDirection(const point_t last, const point_t curr, const point_t next) {
+    part_t snakePart = {BODY, NONE};
     if (last.x == -1)
-        snakeDir.type = HEAD;
+        snakePart.type = HEAD;
     else if (next.x == -1)
-        snakeDir.type = TAIL;
+        snakePart.type = TAIL;
 
     // Vertical movement
     if (last.x == curr.x && curr.x == next.x || (last.x == -1 && curr.x == next.x) ||
         (last.x == curr.x && next.x == -1)) {
         if ((last.y > curr.y && last.x != -1) || (next.y != -1 && curr.y > next.y))
-            snakeDir.direction = DOWN;
+            snakePart.direction = DOWN;
         else
-            snakeDir.direction = UP;
+            snakePart.direction = UP;
     }
         // Horizontal movement
     else if (last.y == curr.y && curr.y == next.y || (last.y == -1 && curr.y == next.y) ||
              (last.y == curr.y && next.y == -1)) {
-        if (last.x > curr.x)
-            snakeDir.direction = RIGHT;
+        if ((curr.x < last.x && last.x != -1) || (curr.x > next.x && next.x != -1))
+            snakePart.direction = RIGHT;
         else
-            snakeDir.direction = LEFT;
+            snakePart.direction = LEFT;
     }
         // Diagonal movement
     else if ((last.y == curr.y && curr.x == next.x) || (last.x == curr.x && curr.y == next.y)) {
         if (last.x > curr.x || next.x > curr.x) {// connects right
             if (curr.y < next.y || curr.y < last.y) // connects down
-                snakeDir.direction = RIGHTDOWN;
+                snakePart.direction = RIGHTDOWN;
             else // connects up
-                snakeDir.direction = RIGHTUP;
+                snakePart.direction = RIGHTUP;
 
         } else {// connects left
             if (curr.y < next.y || curr.y < last.y) // connects down
-                snakeDir.direction = LEFTDOWN;
+                snakePart.direction = LEFTDOWN;
             else // connects up
-                snakeDir.direction = LEFTUP;
+                snakePart.direction = LEFTUP;
         }
     }
 
-    return snakeDir;
+    return snakePart;
 }
 
-void DrawSnake(SDL_Surface *screen, const point_t *pos, const int posLength, SDL_Surface *objects) {
+void DrawSnake(SDL_Surface *screen, const point_t *pos, const int length, SDL_Surface *objects) {
     int px, py, c;
     SDL_Rect source, destination;
     source.w = 32;
@@ -71,19 +71,19 @@ void DrawSnake(SDL_Surface *screen, const point_t *pos, const int posLength, SDL
     destination.w = 32;
     destination.h = 32;
 
-    for (int i = 0; i < posLength; i++) {
-        snake_t snakeDir = GetDirection(
+    for (int i = 0; i < length; i++) {
+        part_t snakePart = GetDirection(
                 i > 0 ? pos[i - 1] : (point_t) {-1, -1},
                 pos[i],
                 i < length - 1 ? pos[i + 1] : (point_t) {-1, -1});
 
-        switch (snakeDir.type) {
+        switch (snakePart.type) {
             case HEAD:
                 source.y = 0;
                 break;
             case BODY:
             default:
-                if (snakeDir.direction >= RIGHT && snakeDir.direction <= UP)
+                if (snakePart.direction >= RIGHT && snakePart.direction <= UP)
                     source.y = i % 2 ? 32 : 64;
                 else source.y = i % 2 ? 160 : 192;
                 break;
@@ -91,7 +91,7 @@ void DrawSnake(SDL_Surface *screen, const point_t *pos, const int posLength, SDL
                 source.y = i % 2 ? 96 : 128;
         }
 
-        switch (snakeDir.direction) {
+        switch (snakePart.direction) {
             case RIGHT:
             case LEFTUP:
                 source.x = 0;

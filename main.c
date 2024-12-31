@@ -4,15 +4,14 @@
 #include "draw.h"
 
 #define CONFIG_PATH     "../config.txt" //with cmake '../' is required
-#define DEBUG           1 //0 - false; 1 - true
 
 const point_t testPos[19] = {
-        {1, 1},
-        {2, 1},
-        {3, 1},
-        {4, 1},
         {4, 2},
-        {4, 3},
+        {3, 2},
+        {2, 2},
+        {2, 3},
+        {2, 4},
+        {3, 4},
         {4, 4},
         {4, 5},
         {3, 5},
@@ -52,7 +51,7 @@ int main(int argc, char *argv[]) {
         DrawString(screen, screen->w / 2 - strlen(text) * 8 / 2, 10, text, game.charset);
 
         DrawSnake(screen, game.snake.pos, game.snake.length, game.objects);
-        TestPrint(screen, game.objects);
+//        TestPrint(screen, game.objects);
         SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
         SDL_RenderCopy(game.renderer, texture, NULL, NULL);
 

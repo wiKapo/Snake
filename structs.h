@@ -1,6 +1,8 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#define DEBUG           1 //0 - false; 1 - true
+
 typedef struct {
     int width;
     int height;
@@ -39,14 +41,7 @@ typedef enum {
     RIGHTUP = 7,
 } direction_et;
 
-typedef enum {
-    HEAD = 0,
-    BODY = 1,
-    TAIL = 2,
-} snake_type_et;
-
 typedef struct {
-    snake_type_et type;
     direction_et direction;
     point_t *pos;
     int length;
