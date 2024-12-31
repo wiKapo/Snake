@@ -72,24 +72,11 @@ void DrawSnake(SDL_Surface *screen, const point_t *pos, const int posLength, SDL
     destination.h = 32;
 
     for (int i = 0; i < posLength; i++) {
-        //GET DIRECTION
-//        if (pos[i].y == pos[i - 1].y) {
-//            if (pos[i].x > pos[i - 1].x)
-//                source.x = 64;      // LEFT
-//            else if (pos[i].x < pos[i - 1].x)
-//                source.x = 0;       // RIGHT
-//        } else {
-//            if (pos[i].y > pos[i - 1].y)
-//                source.x = 32;      //DOWN
-//            else if (pos[i].y < pos[i - 1].y)
-//                source.x = 96;      //UP
-//            else source.x = 112;
-//        }
-//        SDL_LogInfo(0, "ITERATION %d", i);
         snake_t snakeDir = GetDirection(
                 i > 0 ? pos[i - 1] : (point_t) {-1, -1},
                 pos[i],
-                i < posLength - 1 ? pos[i + 1] : (point_t) {-1, -1});
+                i < length - 1 ? pos[i + 1] : (point_t) {-1, -1});
+
         switch (snakeDir.type) {
             case HEAD:
                 source.y = 0;

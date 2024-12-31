@@ -4,8 +4,9 @@
 #include "draw.h"
 
 #define CONFIG_PATH     "../config.txt" //with cmake '../' is required
+#define DEBUG           1 //0 - false; 1 - true
 
-point_t testPos[19] = {
+const point_t testPos[19] = {
         {1, 1},
         {2, 1},
         {3, 1},
@@ -24,18 +25,19 @@ point_t testPos[19] = {
         {2, 9},
         {3, 9},
         {3, 8},
-        {3,7},
+        {3, 7},
 };
 
 int main(int argc, char *argv[]) {
     game_t game;
     game.config = read_config(CONFIG_PATH);
+    if (DEBUG) {
+        game.snake.pos = testPos;
+        game.snake.length = sizeof(testPos) / sizeof(*testPos);
+    }
 
     initSDL(game.config, &game);
     initAssets(&game);
-
-//    point_t pos[6] = {{1, 1}, {2, 1}, {3, 1}, {4, 1}, {4, 2}, {4, 3}};
-//    SDL_LogInfo(0, "Size of pos: %d", sizeof(pos) / sizeof(point_t));
 
 
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
@@ -43,16 +45,13 @@ int main(int argc, char *argv[]) {
     SDL_Rect rect = {10, 10, 100, 100};
 
     while (1) {
-//        SDL_SetRenderDrawColor(game.renderer, 0, 128, 0, 255);
-//        SDL_RenderClear(game.renderer);
         SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 128, 0));
-//        SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 0, 0, 0));
 
         char text[100];
         sprintf(text, "Snake by wiKapo");
         DrawString(screen, screen->w / 2 - strlen(text) * 8 / 2, 10, text, game.charset);
 
-        DrawSnake(screen, testPos, sizeof(testPos) / sizeof(*testPos), game.objects);
+        DrawSnake(screen, game.snake.pos, game.snake.length, game.objects);
         TestPrint(screen, game.objects);
         SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
         SDL_RenderCopy(game.renderer, texture, NULL, NULL);

@@ -23,15 +23,6 @@ typedef struct {
 } config_t;
 
 typedef struct {
-    config_t config;
-    SDL_Renderer *renderer;
-    SDL_Window *window;
-    SDL_Surface *charset;
-    SDL_Surface *objects;
-} game_t;
-
-
-typedef struct {
     int x;
     int y;
 } point_t;
@@ -57,6 +48,17 @@ typedef enum {
 typedef struct {
     snake_type_et type;
     direction_et direction;
+    point_t *pos;
+    int length;
 } snake_t;
+
+typedef struct {
+    config_t config;
+    SDL_Renderer *renderer;
+    SDL_Window *window;
+    SDL_Surface *charset;
+    SDL_Surface *objects;
+    snake_t snake;
+} game_t;
 
 #endif
