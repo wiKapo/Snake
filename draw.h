@@ -17,6 +17,8 @@ typedef struct {
 
 void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *charset);
 
+void DrawTime(SDL_Surface *screen, int x, int y, char *text, SDL_Surface *charset);
+
 void DrawSnake(SDL_Surface *screen, const point_t *pos, int length, SDL_Surface *objects);
 
 void DrawObject(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *objects);

@@ -6,8 +6,6 @@
 #ifndef SNAKEWKP_INITSNAKE_H
 #define SNAKEWKP_INITSNAKE_H
 
-config_t read_config(char* path);
-void initSDL(config_t config, game_t *game);
-void initAssets(game_t *game);
+game_t initGame();
 
 #endif //SNAKEWKP_INITSNAKE_H

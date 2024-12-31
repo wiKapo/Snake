@@ -43,6 +43,7 @@ typedef enum {
 
 typedef struct {
     direction_et direction;
+    int change_direction;
     point_t *pos;
     int length;
 } snake_t;
@@ -54,6 +55,7 @@ typedef struct {
     SDL_Surface *charset;
     SDL_Surface *objects;
     snake_t snake;
+    uint32_t startTime;
 } game_t;
 
 #endif

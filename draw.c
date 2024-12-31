@@ -21,6 +21,14 @@ void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface
     }
 }
 
+void DrawTime(SDL_Surface *screen, int x, int y, char *text, SDL_Surface *charset) {
+    for (int i = 0; i < strlen(text) - 1; i++)
+        if (text[i] == ' ')
+            text[i] = '0';
+
+    DrawString(screen, x, y, text, charset);
+}
+
 part_t GetDirection(const point_t last, const point_t curr, const point_t next) {
     part_t snakePart = {BODY, NONE};
     if (last.x == -1)
