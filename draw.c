@@ -1,19 +1,27 @@
 #include "draw.h"
 
-void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t startTime, state_et state, int score) {
+void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score) {
     DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 30}, 1);
 
     char text[100];
     sprintf(text, "Snake by wiKapo");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, 10, text);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, 10, text, (SDL_Color) {0, 255, 0});
+
     sprintf(text, "Score: %04d", score);
     DrawString(screen, charset, 30, 10, text);
-//    sprintf(text, "1234ABCDEFGHI", score); //TODO change color of the text
-//    DrawString(screen, charset, 125, 10, text);
+
+    sprintf(text, "1234ABCDEFGHI", score);
+    DrawColorString(screen, charset, 128, 10, text, (SDL_Color) {64, 64, 64});
+
     if (state == PLAY)
-        DrawTime(screen, charset, screen->w - 100, 10, SDL_GetTicks() - startTime);
+        DrawTime(screen, charset, screen->w - 100, 10, deltaTime);
+    else if (state == PAUSE) {
+        DrawString(screen, charset, screen->w - 100 - 9 * 8, 10, "[PAUSED]");
+        DrawColorTime(screen, charset, screen->w - 100, 10, deltaTime, (SDL_Color) {128, 128, 128});
+    } else if (state == NEW_GAME)
+        DrawColorTime(screen, charset, screen->w - 100, 10, deltaTime, (SDL_Color) {128, 128, 128});
     else
-        DrawString(screen, charset, screen->w - 100, 10, "XX:XX.XXX");
+        DrawColorString(screen, charset, screen->w - 100, 10, "XX:XX.XXX", (SDL_Color) {128, 128, 128});
 }
 
 void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
@@ -28,8 +36,12 @@ void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time
 
     DrawTime(screen, charset, screen->w / 2 - 9 * 8 / 2, screen->h / 3 + 45, time);
 
-    sprintf(text, "Quit [Esc]   New game [n]");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text);
+    sprintf(text, "             New game [n]");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
+                    (SDL_Color) {128, 255, 128});
+    sprintf(text, "Quit [Esc]               ");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
+                    (SDL_Color) {255, 128, 128});
 }
 
 void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
@@ -49,30 +61,35 @@ void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
 }
 
 void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
+    //Main box
     DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4}, 1);
+    //"Controls" text box
     DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 50, screen->h / 4 + 10, 100, 30}, 0);
 
     char text[100];
-    sprintf(text, "Controls:");
+    sprintf(text, "Controls");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 20, text);
-    sprintf(text, "Move up          [\030]");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 40, text);
-    sprintf(text, "Move down        [\031]");
+
+    sprintf(text, "New game        [n] ");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 40, text,
+                    (SDL_Color) {128, 255, 128});
+    sprintf(text, "Move up         [\030] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 55, text);
-    sprintf(text, "Move left        [\032]");
+    sprintf(text, "Move down       [\031] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 70, text);
-    sprintf(text, "Move right       [\033]");
+    sprintf(text, "Move left       [\032] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 85, text);
-    sprintf(text, "Quick save       [s]");
+    sprintf(text, "Move right      [\033] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 100, text);
-    sprintf(text, "Quick load       [l]");
+    sprintf(text, "Quick save      [s] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 115, text);
-    sprintf(text, "New game         [n]");
+    sprintf(text, "Quick load      [l] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 130, text);
-    sprintf(text, "Show controls    [i]");
+    sprintf(text, "Show controls   [h] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 145, text);
     sprintf(text, "Quit game      [Esc]");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text,
+                    (SDL_Color) {255, 128, 128});
 }
 
 //type: 0 - single line, 1 - double line
@@ -139,11 +156,22 @@ void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const c
     }
 }
 
+void DrawColorString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text, SDL_Color color) {
+    SDL_SetSurfaceColorMod(charset, color.r, color.g, color.b);
+    DrawString(screen, charset, x, y, text);
+    SDL_SetSurfaceColorMod(charset, 255, 255, 255);
+}
+
 void DrawTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time) {
     char text[100];
     sprintf(text, "%02d:%02d.%03d", (time / 1000) / 60, (time / 1000) % 60, time % 1000);
-
     DrawString(screen, charset, x, y, text);
+}
+
+void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time, SDL_Color color) {
+    char text[100];
+    sprintf(text, "%02d:%02d.%03d", (time / 1000) / 60, (time / 1000) % 60, time % 1000);
+    DrawColorString(screen, charset, x, y, text, color);
 }
 
 part_t GetDirection(const point_t last, const point_t curr, const point_t next) {

@@ -29,7 +29,7 @@ void HandleInput(game_t *game) {
                     case SDLK_l:
                         QuickLoad(game);
                         break;
-                    case SDLK_i:
+                    case SDLK_h:
                         if (game->state == PLAY)
                             game->state = PAUSE;
                         else

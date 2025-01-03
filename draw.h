@@ -16,7 +16,7 @@ typedef struct {
     direction_et direction;
 } part_t;
 
-void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t startTime, state_et state, int score);
+void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score);
 
 void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time);
 
@@ -30,7 +30,11 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
 
 void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);
 
+void DrawColorString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text, SDL_Color color);
+
 void DrawTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time);
+
+void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time, SDL_Color color);
 
 void DrawSnake(SDL_Surface *screen, SDL_Surface *objects, SDL_Rect gameArea, const point_t *pos, int length);
 
