@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <stdio.h>
 #include "structs.h"
 
 #ifndef SNAKEWKP_DRAW_H
@@ -15,13 +16,25 @@ typedef struct {
     direction_et direction;
 } part_t;
 
-void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *charset);
+void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t startTime, state_et state, int score);
 
-void DrawTime(SDL_Surface *screen, int x, int y, char *text, SDL_Surface *charset);
+void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time);
 
-void DrawSnake(SDL_Surface *screen, const point_t *pos, int length, SDL_Surface *objects);
+void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time);
 
-void DrawObject(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *objects);
+void DrawHelp(SDL_Surface *screen, SDL_Surface *charset);
+
+void DrawBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type);
+
+void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type, uint32_t color);
+
+void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);
+
+void DrawTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time);
+
+void DrawSnake(SDL_Surface *screen, SDL_Surface *objects, SDL_Rect gameArea, const point_t *pos, int length);
+
+void DrawObject(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);
 
 void DrawSurface(SDL_Surface *screen, SDL_Surface *sprite, int x, int y);
 

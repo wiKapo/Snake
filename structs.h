@@ -6,10 +6,10 @@
 typedef struct {
     int width;
     int height;
-} window_t;
+} dimensions_t;
 
 typedef struct {
-    window_t window;
+    dimensions_t window;
 
     //game initialization
     float snake_speed;
@@ -48,14 +48,28 @@ typedef struct {
     int length;
 } snake_t;
 
+typedef enum {
+    QUIT = -1,
+    INFO = 0,
+    NEW_GAME = 1,
+    PLAY = 2,
+    GAME_OVER = 3,
+    WIN = 4,
+    PAUSE = 5,
+    LOAD = 6,
+} state_et;
+
 typedef struct {
     config_t config;
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Surface *charset;
     SDL_Surface *objects;
+    state_et state;
     snake_t snake;
     uint32_t startTime;
+    uint32_t deltaTime;
+    int score;
 } game_t;
 
 #endif

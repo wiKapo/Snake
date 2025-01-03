@@ -3,41 +3,75 @@
 #include "game.h"
 #include "draw.h"
 
+#define PADDING     40
 
 int main(int argc, char *argv[]) {
     game_t game = initGame();
+    uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0;
 
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(game.renderer, screen);
 
-    while (1) {
-        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 128, 0));
+    const SDL_Rect gameArea = {PADDING, 30 + PADDING, ((screen->w) / 32 - 2) * 32, ((screen->h - 30) / 32 - 2) * 32};
+    const SDL_Rect gameBorder = {gameArea.x - 7, gameArea.y - 7, gameArea.w + 16, gameArea.h + 16};
 
-        handleInput(&game);
-        handleMovement(&game.snake);
+    while (game.state != QUIT) {
 
-        char text[100];
-        sprintf(text, "Snake by wiKapo");
-        DrawString(screen, screen->w / 2 - strlen(text) * 8 / 2, 10, text, game.charset);
+        SDL_FillRect(screen, nullptr, SDL_MapRGB(screen->format, 64, 41, 5));
 
-        if (game.startTime) {
-            sprintf(text, "%2d:%2d.%3d",
-                    ((SDL_GetTicks() - game.startTime) / 1000) / 60,
-                    ((SDL_GetTicks() - game.startTime) / 1000) % 60,
-                    (SDL_GetTicks() - game.startTime) % 1000);
-            DrawTime(screen, screen->w - 100, 10, text, game.charset);
+        DrawTopBar(screen, game.charset, game.startTime, game.state, game.score);
+        DrawColorBox(screen, game.charset, gameBorder, 0, SDL_MapRGB(screen->format, 0, 128, 0));
+
+        if(DEBUG) {
+            char text[100];
+            sprintf(text, "HEAD POS X: %d Y: %d GAME ARENA W: %d H: %d", game.snake.pos->x, game.snake.pos->y,
+                    gameArea.w / 32, gameArea.h / 32);
+            DrawString(screen, game.charset, 50, 150, text);
         }
 
-        DrawSnake(screen, game.snake.pos, game.snake.length, game.objects);
-//        TestPrint(screen, game.objects);
-        SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
-        SDL_RenderCopy(game.renderer, texture, NULL, NULL);
+        HandleInput(&game);
+        DrawSnake(screen, game.objects, gameArea, game.snake.pos, game.snake.length);
+
+        switch (game.state) {
+            case INFO:
+                DrawHelp(screen, game.charset);
+                break;
+            case NEW_GAME:
+                break;
+            case PLAY:
+                tickCurrent = SDL_GetTicks();
+                frameTime += (tickCurrent - tickPrevious);
+                tickPrevious = tickCurrent;
+
+                int gameSpeed = 200; //TODO connect with game config
+                if (frameTime > gameSpeed) {
+                    HandleMovement(&game.snake, gameArea);
+
+                    if (CheckCollision(&game.snake) || CheckBorderCollision(gameArea, game.snake.pos[0]))
+                        game.state = GAME_OVER;
+
+                    game.deltaTime += gameSpeed;
+                    frameTime -= gameSpeed;
+                }
+                break;
+            case GAME_OVER:
+                DrawGameOver(screen, game.charset, 12345, game.deltaTime);
+                break;
+            case WIN:
+                DrawWin(screen, game.charset, 99999, game.deltaTime);
+                break;
+            case LOAD:
+                break;
+            case PAUSE:
+                break;
+            case QUIT:
+                break;
+        }
+        SDL_UpdateTexture(texture, nullptr, screen->pixels, screen->pitch);
+        SDL_RenderCopy(game.renderer, texture, nullptr, nullptr);
 
         SDL_RenderPresent(game.renderer);
-
-        SDL_Delay(100);
     }
-
     SDL_Quit();
     return 0;
 }

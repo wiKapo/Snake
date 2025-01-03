@@ -37,13 +37,17 @@ game_t initGame() {
     if (DEBUG) {
         game.snake.pos = testPos;
         game.snake.length = sizeof(testPos) / sizeof(*testPos);
+        game.snake.direction = RIGHT;
+        game.state = PLAY;
     } else {
         game.snake.pos = malloc(sizeof(point_t) * game.config.snake_length);
         game.snake.length = game.config.snake_length;
+        game.snake.direction = UP;
+        game.state = INFO;
     }
-    game.snake.direction = NONE;
     game.snake.change_direction = 0;
     game.startTime = 0;
+    game.score = 0;
 
     initSDL(&game);
     initAssets(&game);

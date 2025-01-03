@@ -1,6 +1,124 @@
 #include "draw.h"
 
-void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *charset) {
+void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t startTime, state_et state, int score) {
+    DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 30}, 1);
+
+    char text[100];
+    sprintf(text, "Snake by wiKapo");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, 10, text);
+    sprintf(text, "Score: %04d", score);
+    DrawString(screen, charset, 30, 10, text);
+//    sprintf(text, "1234ABCDEFGHI", score); //TODO change color of the text
+//    DrawString(screen, charset, 125, 10, text);
+    if (state == PLAY)
+        DrawTime(screen, charset, screen->w - 100, 10, SDL_GetTicks() - startTime);
+    else
+        DrawString(screen, charset, screen->w - 100, 10, "XX:XX.XXX");
+}
+
+void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 30 * 8 / 2, screen->h / 3, 30 * 8, 12 * 8}, 0);
+
+    char text[100];
+    sprintf(text, "GAME OVER");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 15, text);
+
+    sprintf(text, "Score: %d", score);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 30, text);
+
+    DrawTime(screen, charset, screen->w / 2 - 9 * 8 / 2, screen->h / 3 + 45, time);
+
+    sprintf(text, "Quit [Esc]   New game [n]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text);
+}
+
+void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 30 * 8 / 2, screen->h / 3, 30 * 8, 12 * 8}, 0);
+
+    char text[100];
+    sprintf(text, "CONGRATULATIONS! YOU WON!");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 30, text);
+
+    sprintf(text, "Score: %d", score);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 15, text);
+
+    DrawTime(screen, charset, screen->w / 2 - 9 * 8 / 2, screen->h / 3 + 45, time);
+
+    sprintf(text, "Quit [Esc]   New game [n]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text);
+}
+
+void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4}, 1);
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 50, screen->h / 4 + 10, 100, 30}, 0);
+
+    char text[100];
+    sprintf(text, "Controls:");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 20, text);
+    sprintf(text, "Move up          [\030]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 40, text);
+    sprintf(text, "Move down        [\031]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 55, text);
+    sprintf(text, "Move left        [\032]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 70, text);
+    sprintf(text, "Move right       [\033]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 85, text);
+    sprintf(text, "Quick save       [s]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 100, text);
+    sprintf(text, "Quick load       [l]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 115, text);
+    sprintf(text, "New game         [n]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 130, text);
+    sprintf(text, "Show controls    [i]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 145, text);
+    sprintf(text, "Quit game      [Esc]");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text);
+}
+
+//type: 0 - single line, 1 - double line
+void DrawBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type) {
+    DrawColorBox(screen, charset, rect, type, SDL_MapRGB(screen->format, 0, 0, 0));
+}
+
+void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type, uint32_t color) {
+    int singleBorder[6] = {179, 191, 192, 196, 217, 218};// │ ┐ └ ─ ┘ ┌
+    int doubleBorder[6] = {186, 187, 200, 205, 188, 201};// ║ ╗ ╚ ═ ╝ ╔
+    int err[6] = {0, 0, 0, 0, 0, 0};
+    int *border = type == 0 ? singleBorder :
+                  type == 1 ? doubleBorder : err;
+
+    int x = rect.x, y = rect.y, w = rect.w, h = rect.h;
+
+    SDL_FillRect(screen, &(SDL_Rect) {x, y, w, h}, color);
+
+    for (int i = x + 8; i < x + w - 8; i += 8) {
+        SDL_BlitSurface(charset, &(SDL_Rect) {(border[3] % 16) * 8, (border[3] / 16) * 8, 8, 8},
+                        screen, &(SDL_Rect) {i, y, 8, 8});
+        SDL_BlitSurface(charset, &(SDL_Rect) {(border[3] % 16) * 8, (border[3] / 16) * 8, 8, 8},
+                        screen, &(SDL_Rect) {i, y + h - 8, 8, 8});
+    }
+
+    for (int i = y + 8; i < y + h - 8; i += 8) {
+        SDL_BlitSurface(charset, &(SDL_Rect) {(border[0] % 16) * 8, (border[0] / 16) * 8, 8, 8},
+                        screen, &(SDL_Rect) {x, i, 8, 8});
+        SDL_BlitSurface(charset, &(SDL_Rect) {(border[0] % 16) * 8, (border[0] / 16) * 8, 8, 8},
+                        screen, &(SDL_Rect) {x + w - 8, i, 8, 8});
+    }
+
+    SDL_BlitSurface(charset, &(SDL_Rect) {(border[1] % 16) * 8, (border[1] / 16) * 8, 8, 8},
+                    screen, &(SDL_Rect) {x + w - 8, y, 8, 8});              //TOP RIGHT
+
+    SDL_BlitSurface(charset, &(SDL_Rect) {(border[2] % 16) * 8, (border[2] / 16) * 8, 8, 8},
+                    screen, &(SDL_Rect) {x, y + h - 8, 8, 8});              //BOTTOM LEFT
+
+    SDL_BlitSurface(charset, &(SDL_Rect) {(border[4] % 16) * 8, (border[4] / 16) * 8, 8, 8},
+                    screen, &(SDL_Rect) {x + w - 8, y + h - 8, 8, 8});   //BOTTOM RIGHT
+
+    SDL_BlitSurface(charset, &(SDL_Rect) {(border[5] % 16) * 8, (border[5] / 16) * 8, 8, 8},
+                    screen, &(SDL_Rect) {x, y, 8, 8});                          // TOP LEFT
+}
+
+void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text) {
     int px, py, c;
     SDL_Rect source, destination;
     source.w = 8;
@@ -21,33 +139,32 @@ void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface
     }
 }
 
-void DrawTime(SDL_Surface *screen, int x, int y, char *text, SDL_Surface *charset) {
-    for (int i = 0; i < strlen(text) - 1; i++)
-        if (text[i] == ' ')
-            text[i] = '0';
+void DrawTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time) {
+    char text[100];
+    sprintf(text, "%02d:%02d.%03d", (time / 1000) / 60, (time / 1000) % 60, time % 1000);
 
-    DrawString(screen, x, y, text, charset);
+    DrawString(screen, charset, x, y, text);
 }
 
 part_t GetDirection(const point_t last, const point_t curr, const point_t next) {
     part_t snakePart = {BODY, NONE};
-    if (last.x == -1)
+    if (last.x == -99)
         snakePart.type = HEAD;
-    else if (next.x == -1)
+    else if (next.x == -99)
         snakePart.type = TAIL;
 
     // Vertical movement
-    if (last.x == curr.x && curr.x == next.x || (last.x == -1 && curr.x == next.x) ||
-        (last.x == curr.x && next.x == -1)) {
-        if ((last.y > curr.y && last.x != -1) || (next.y != -1 && curr.y > next.y))
+    if (last.x == curr.x && curr.x == next.x || (last.x == -99 && curr.x == next.x) ||
+        (last.x == curr.x && next.x == -99)) {
+        if ((last.y > curr.y && last.x != -99) || (next.y != -99 && curr.y > next.y))
             snakePart.direction = DOWN;
         else
             snakePart.direction = UP;
     }
         // Horizontal movement
-    else if (last.y == curr.y && curr.y == next.y || (last.y == -1 && curr.y == next.y) ||
-             (last.y == curr.y && next.y == -1)) {
-        if ((curr.x < last.x && last.x != -1) || (curr.x > next.x && next.x != -1))
+    else if (last.y == curr.y && curr.y == next.y || (last.y == -99 && curr.y == next.y) ||
+             (last.y == curr.y && next.y == -99)) {
+        if ((curr.x < last.x && last.x != -99) || (curr.x > next.x && next.x != -99))
             snakePart.direction = RIGHT;
         else
             snakePart.direction = LEFT;
@@ -71,8 +188,8 @@ part_t GetDirection(const point_t last, const point_t curr, const point_t next) 
     return snakePart;
 }
 
-void DrawSnake(SDL_Surface *screen, const point_t *pos, const int length, SDL_Surface *objects) {
-    int px, py, c;
+void
+DrawSnake(SDL_Surface *screen, SDL_Surface *objects, const SDL_Rect gameArea, const point_t *pos, const int length) {
     SDL_Rect source, destination;
     source.w = 32;
     source.h = 32;
@@ -81,9 +198,9 @@ void DrawSnake(SDL_Surface *screen, const point_t *pos, const int length, SDL_Su
 
     for (int i = 0; i < length; i++) {
         part_t snakePart = GetDirection(
-                i > 0 ? pos[i - 1] : (point_t) {-1, -1},
+                i > 0 ? pos[i - 1] : (point_t) {-99, -99},
                 pos[i],
-                i < length - 1 ? pos[i + 1] : (point_t) {-1, -1});
+                i < length - 1 ? pos[i + 1] : (point_t) {-99, -99});
 
         switch (snakePart.type) {
             case HEAD:
@@ -123,8 +240,8 @@ void DrawSnake(SDL_Surface *screen, const point_t *pos, const int length, SDL_Su
                 break;
         }
 
-        destination.x = pos[i].x * 32;
-        destination.y = pos[i].y * 32;
+        destination.x = pos[i].x * 32 + gameArea.x;
+        destination.y = pos[i].y * 32 + gameArea.y;
         SDL_BlitSurface(objects, &source, screen, &destination);
     }
 }
@@ -156,18 +273,18 @@ void DrawSurface(SDL_Surface *screen, SDL_Surface *sprite, int x, int y) {
     dest.y = y - sprite->h / 2;
     dest.w = sprite->w;
     dest.h = sprite->h;
-    SDL_BlitSurface(sprite, NULL, screen, &dest);
-};
-
-void TestPrint(SDL_Surface *screen, SDL_Surface *objects) {
-    SDL_Rect source, destination;
-    source.w = 32;
-    source.h = 32;
-    destination.w = 32;
-    destination.h = 32;
-    source.x = 0;
-    source.y = 0;
-    destination.x = 100;
-    destination.y = 100;
-    SDL_BlitSurface(objects, &source, screen, &destination);
+    SDL_BlitSurface(sprite, nullptr, screen, &dest);
 }
+
+//void TestPrint(SDL_Surface *screen, SDL_Surface *objects) {
+//    SDL_Rect source, destination;
+//    source.w = 32;
+//    source.h = 32;
+//    destination.w = 32;
+//    destination.h = 32;
+//    source.x = 0;
+//    source.y = 0;
+//    destination.x = 100;
+//    destination.y = 100;
+//    SDL_BlitSurface(objects, &source, screen, &destination);
+//}
