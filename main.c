@@ -67,6 +67,10 @@ int main(int argc, char *argv[]) {
             case PAUSE:
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 break;
+            case PAUSE_INFO:
+                pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
+                DrawHelp(screen, game.charset);
+                break;
             case QUIT:
                 break;
         }

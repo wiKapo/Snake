@@ -26,14 +26,15 @@ void HandleInput(game_t *game) {
                         NewGame(game);
                         break;
                     case SDLK_s:
-                        QuickSave();
+                        if (game->state == PLAY || game->state == PAUSE) //maybe will delete pause option but idk
+                            QuickSave();
                         break;
                     case SDLK_l:
                         QuickLoad(game);
                         break;
                     case SDLK_h:
-                        if (game->state == PLAY)
-                            game->state = PAUSE;
+                        if (game->state == PLAY || game->state == PAUSE || game->state == PAUSE_INFO)
+                            game->state = PAUSE_INFO;
                         else
                             game->state = INFO;
                         break;
@@ -62,7 +63,8 @@ void HandleInput(game_t *game) {
                         }
                         break;
                     case SDLK_p:
-                        game->state = PAUSE;
+                        if (game->state == PLAY)
+                            game->state = PAUSE;
                         break;
                 }
             default:
@@ -71,7 +73,7 @@ void HandleInput(game_t *game) {
     }
     if (snake->change_direction == 1) {
         if (game->state == NEW_GAME) initPlay(game);
-        else if (game->state == PAUSE) game->state = PLAY;
+        else if (game->state == PAUSE || game->state == PAUSE_INFO) game->state = PLAY;
     }
 }
 

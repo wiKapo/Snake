@@ -56,7 +56,8 @@ typedef enum {
     GAME_OVER = 3,
     WIN = 4,
     PAUSE = 5,
-    LOAD = 6,
+    PAUSE_INFO = 6,
+    LOAD = 7,
 } state_et;
 
 typedef struct {

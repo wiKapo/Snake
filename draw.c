@@ -15,7 +15,7 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
 
     if (state == PLAY)
         DrawTime(screen, charset, screen->w - 100, 10, deltaTime);
-    else if (state == PAUSE) {
+    else if (state == PAUSE || state == PAUSE_INFO) {
         DrawString(screen, charset, screen->w - 100 - 9 * 8, 10, "[PAUSED]");
         DrawColorTime(screen, charset, screen->w - 100, 10, deltaTime, (SDL_Color) {128, 128, 128});
     } else if (state == NEW_GAME)
@@ -62,7 +62,7 @@ void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
 
 void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
     //Main box
-    DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4}, 1);
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4 + 16}, 1);
     //"Controls" text box
     DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 50, screen->h / 4 + 10, 100, 30}, 0);
 
@@ -85,10 +85,12 @@ void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 115, text);
     sprintf(text, "Quick load      [l] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 130, text);
-    sprintf(text, "Show controls   [h] ");
+    sprintf(text, "Pause game      [p] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 145, text);
+    sprintf(text, "Show controls   [h] ");
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text);
     sprintf(text, "Quit game      [Esc]");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text,
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 175, text,
                     (SDL_Color) {255, 128, 128});
 }
 
