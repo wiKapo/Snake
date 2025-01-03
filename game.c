@@ -1,10 +1,12 @@
 #include "game.h"
 
-void RestartGame(game_t *game);
+void NewGame(game_t *game);
 
 void QuickSave();
 
 void QuickLoad(game_t *game);
+
+void initPlay(game_t *game);
 
 void HandleInput(game_t *game) {
     SDL_Event event;
@@ -21,7 +23,7 @@ void HandleInput(game_t *game) {
                         game->state = QUIT;
                         break;
                     case SDLK_n:
-                        RestartGame(game);
+                        NewGame(game);
                         break;
                     case SDLK_s:
                         QuickSave();
@@ -60,16 +62,16 @@ void HandleInput(game_t *game) {
                         }
                         break;
                     case SDLK_p:
-                        game->state = PAUSE; //Add 'PAUSED' to the timer
+                        game->state = PAUSE;
                         break;
                 }
             default:
                 break;
         }
     }
-    if (game->state == NEW_GAME && snake->direction != NONE) {
-        game->state = PLAY;
-        game->startTime = SDL_GetTicks();
+    if (snake->change_direction == 1) {
+        if (game->state == NEW_GAME) initPlay(game);
+        else if (game->state == PAUSE) game->state = PLAY;
     }
 }
 
@@ -186,20 +188,27 @@ int CheckBorderCollision(SDL_Rect gameBoard, point_t snakeHead) {
     return 0;
 }
 
-void RestartGame(game_t *game) {
+void NewGame(game_t *game) {
     game->state = NEW_GAME;
     game->startTime = 0;
-    game->snake.direction = NONE;
+    game->deltaTime = 0;
+    game->score = 0;
+    game->snake.direction = UP;
     game->snake.change_direction = 0;
-    game->snake.length = 4;
-    game->snake.pos[0] = (point_t) {10, 10};
-    game->snake.pos[1] = (point_t) {10, 11};
-    game->snake.pos[2] = (point_t) {10, 12};
-    game->snake.pos[3] = (point_t) {10, 13};
+    game->snake.length = game->config.snake_length;
+    for (int i = 0; i < game->snake.length; i++) {
+        game->snake.pos[i].x = game->config.window.width / 32 / 2;
+        game->snake.pos[i].y = game->config.window.height / 32 / 2 + i;
+    }
 }
 
 void QuickSave() {}
 
 void QuickLoad(game_t *game) {
     game->state = LOAD;
+}
+
+void initPlay(game_t *game) {
+    game->state = PLAY;
+    game->startTime = SDL_GetTicks();
 }

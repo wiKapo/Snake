@@ -1,7 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#define DEBUG           1 //0 - false; 1 - true
+#define DEBUG           0 //0 - false; 1 - true
 
 typedef struct {
     int width;
