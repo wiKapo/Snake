@@ -6,7 +6,8 @@
 
 int main(int argc, char *argv[]) {
     game_t game = initGame();
-    uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0, accelerationTime = 0;
+    //There has to be a better way to do this      V               V              V               V                     V...
+    uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0, accelerationTime = 0, animationTime = 0;
 
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(game.renderer, screen);
@@ -44,17 +45,20 @@ int main(int argc, char *argv[]) {
                 DrawHelp(screen, game.charset);
                 break;
             case NEW_GAME:
-                DrawGame(screen, game);
-                frameTime = tickPrevious = gameTime = pauseTime = 0;
+                DrawGame(screen, game, &animationTime);
+                frameTime = tickPrevious = gameTime = pauseTime = accelerationTime = animationTime = 0;
                 break;
             case PLAY:
                 tickCurrent = SDL_GetTicks() - game.startTime - pauseTime;
+                // me no likey
                 frameTime += (tickCurrent - tickPrevious);
                 accelerationTime += (tickCurrent - tickPrevious);
                 gameTime += (tickCurrent - tickPrevious);
+                animationTime += (tickCurrent - tickPrevious);
+                //eugh ^
                 tickPrevious = tickCurrent;
 
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
 
                 if (accelerationTime > game.config.acceleration_interval && game.snake.speed > game.config.max_speed) {
                     game.snake.speed *= game.config.acceleration;
@@ -77,22 +81,22 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case GAME_OVER:
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
                 DrawGameOver(screen, game.charset, game.score, game.deltaTime);
                 break;
             case WIN:
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
                 DrawWin(screen, game.charset, game.score, game.deltaTime);
                 break;
             case LOAD:
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
                 break;
             case PAUSE:
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 break;
             case PAUSE_INFO:
-                DrawGame(screen, game);
+                DrawGame(screen, game, &animationTime);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 DrawHelp(screen, game.charset);
                 break;

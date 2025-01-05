@@ -1,5 +1,7 @@
 #include "draw.h"
 
+#define ANIMATION_TIME 250
+
 void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score) {
     DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 30}, 1);
 
@@ -296,7 +298,8 @@ void DrawObjects(
         SDL_Surface *objects,
         const SDL_Rect gameArea,
         const point_t *pos,
-        const int length
+        const int length,
+        int type
 ) {
     SDL_Rect source, destination;
     source.w = 32;
@@ -308,10 +311,10 @@ void DrawObjects(
         if (pos[i].x == NULL_POS) break;
         if (i == APPLE) {
             source.x = 192;
-            source.y = 0;
+            source.y = type * 32;
         } else if (i == ORANGE) {
             source.x = 224;
-            source.y = 0;
+            source.y = type * 32;
         } else {
             source.x = 160;
             source.y = 0;
@@ -322,7 +325,11 @@ void DrawObjects(
     };
 };
 
-void DrawGame(SDL_Surface *screen, game_t game) {
+void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
     DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
-    DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count);
+    if (*time < ANIMATION_TIME / 2)
+        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
+    else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
+        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1);
+    else *time -= ANIMATION_TIME;
 }
