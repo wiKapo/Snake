@@ -28,8 +28,8 @@ int main(int argc, char *argv[]) {
             sprintf(text, "GAME ARENA %dx%d CONFIG WINDOW %dx%d", game.area.x, game.area.y,
                     game.config.width, game.config.height);
             DrawString(screen, game.charset, 10, 40, text);
-            sprintf(text, "APPLE POS %dx%d SPEED %.02f", game.objectPos[APPLE].x, game.objectPos[APPLE].y,
-                    game.snake.speed ? game.config.start_speed / (float)game.snake.speed : -99.9);
+            sprintf(text, "APPLE POS %dx%d SPEED %f MOVE TIME %d", game.objectPos[APPLE].x, game.objectPos[APPLE].y,
+                    game.snake.speed ? game.config.start_speed / (float) game.snake.speed : -99.9, game.snake.speed);
             DrawString(screen, game.charset, 10, 48, text);
             sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
             DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text,
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
                 DrawGame(screen, game);
 
                 if (accelerationTime > game.config.acceleration_interval && game.snake.speed > game.config.max_speed) {
-                    game.snake.speed -= game.config.acceleration;
+                    game.snake.speed *= game.config.acceleration;
                     accelerationTime -= game.config.acceleration_interval;
                 } else if (game.snake.speed < game.config.max_speed) {
                     game.snake.speed = game.config.max_speed;

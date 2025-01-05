@@ -15,7 +15,7 @@ game_t initGame() {
     game.config = read_config(CONFIG_PATH);
     game.objectPos = malloc(sizeof(point_t) * (game.config.width * game.config.height));
     for (int i = 0; i < game.config.width * game.config.height; i++)
-        game.objectPos[i] = (point_t) {-99, -99};
+        game.objectPos[i] = (point_t) {NULL_POS, NULL_POS};
 
     game.snake.pos = &game.objectPos[2 + game.config.start_length];
     game.snake.length = game.config.start_length;
@@ -66,7 +66,7 @@ config_t read_config(char *path) {
         else if (!strcmp(name, "ORANGE_VALUE"))
             fscanf(file, "%d", &config.orange_value);
         else if (!strcmp(name, "ACCELERATION"))
-            fscanf(file, "%d", &config.acceleration);
+            fscanf(file, "%f", &config.acceleration);
         else if (!strcmp(name, "ACCELERATION_INTERVAL"))
             fscanf(file, "%d", &config.acceleration_interval);
         else if (!strcmp(name, "BONUS_SLOW_DOWN"))
@@ -77,6 +77,8 @@ config_t read_config(char *path) {
             fscanf(file, "%d", &config.portal_count);
     }
     fclose(file);
+
+    config.acceleration = 1 - config.acceleration;
     return config;
 }
 

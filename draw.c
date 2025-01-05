@@ -178,23 +178,23 @@ void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint
 
 part_t GetDirection(const point_t last, const point_t curr, const point_t next) {
     part_t snakePart = {BODY, NONE};
-    if (last.x == -99)
+    if (last.x == NULL_POS)
         snakePart.type = HEAD;
-    else if (next.x == -99)
+    else if (next.x == NULL_POS)
         snakePart.type = TAIL;
 
     // Vertical movement
-    if (last.x == curr.x && curr.x == next.x || (last.x == -99 && curr.x == next.x) ||
-        (last.x == curr.x && next.x == -99)) {
-        if ((last.y > curr.y && last.x != -99) || (next.y != -99 && curr.y > next.y))
+    if (last.x == curr.x && curr.x == next.x || (last.x == NULL_POS && curr.x == next.x) ||
+        (last.x == curr.x && next.x == NULL_POS)) {
+        if ((last.y > curr.y && last.x != NULL_POS) || (next.y != NULL_POS && curr.y > next.y))
             snakePart.direction = DOWN;
         else
             snakePart.direction = UP;
     }
         // Horizontal movement
-    else if (last.y == curr.y && curr.y == next.y || (last.y == -99 && curr.y == next.y) ||
-             (last.y == curr.y && next.y == -99)) {
-        if ((curr.x < last.x && last.x != -99) || (curr.x > next.x && next.x != -99))
+    else if (last.y == curr.y && curr.y == next.y || (last.y == NULL_POS && curr.y == next.y) ||
+             (last.y == curr.y && next.y == NULL_POS)) {
+        if ((curr.x < last.x && last.x != NULL_POS) || (curr.x > next.x && next.x != NULL_POS))
             snakePart.direction = RIGHT;
         else
             snakePart.direction = LEFT;
@@ -227,76 +227,57 @@ void DrawSnake(
         const int length
 ) {
     SDL_Rect source, destination;
-    source.
-            w = 32;
-    source.
-            h = 32;
-    destination.
-            w = 32;
-    destination.
-            h = 32;
+    source.w = 32;
+    source.h = 32;
+    destination.w = 32;
+    destination.h = 32;
 
-    for (
-            int i = 0;
-            i < length;
-            i++) {
+    for (int i = 0; i < length; i++) {
         part_t snakePart = GetDirection(
-                i > 0 ? pos[i - 1] : (point_t) {-99, -99},
+                i > 0 ? pos[i - 1] : (point_t) {NULL_POS, NULL_POS},
                 pos[i],
-                i < length - 1 ? pos[i + 1] : (point_t) {-99, -99});
+                i < length - 1 ? pos[i + 1] : (point_t) {NULL_POS, NULL_POS});
 
         switch (snakePart.type) {
             case HEAD:
-                source.
-                        y = 0;
+                source.y = 0;
                 break;
             case BODY:
             default:
                 if (snakePart.direction >= RIGHT && snakePart.direction <= UP)
-                    source.
-                            y = i % 2 ? 32 : 64;
+                    source.y = i % 2 ? 32 : 64;
                 else
-                    source.
-                            y = i % 2 ? 160 : 192;
+                    source.y = i % 2 ? 160 : 192;
                 break;
             case TAIL:
-                source.
-                        y = i % 2 ? 96 : 128;
+                source.y = i % 2 ? 96 : 128;
         }
 
         switch (snakePart.direction) {
             case RIGHT:
             case LEFTUP:
-                source.
-                        x = 0;
+                source.x = 0;
                 break;
             case DOWN:
             case LEFTDOWN:
-                source.
-                        x = 32;
+                source.x = 32;
                 break;
             case LEFT:
             case RIGHTDOWN:
-                source.
-                        x = 64;
+                source.x = 64;
                 break;
             case UP:
             case RIGHTUP:
-                source.
-                        x = 96;
+                source.x = 96;
                 break;
             case NONE:
             default:
-                source.
-                        x = 224;
-                source.
-                        y = 224;
+                source.x = 224;
+                source.y = 224;
                 break;
         }
-        destination.
-                x = pos[i].x * 32 + gameArea.x;
-        destination.
-                y = pos[i].y * 32 + gameArea.y;
+        destination.x = pos[i].x * 32 + gameArea.x;
+        destination.y = pos[i].y * 32 + gameArea.y;
         SDL_BlitSurface(objects,
                         &source, screen, &destination);
     }
@@ -316,7 +297,7 @@ void DrawObjects(
     destination.h = 32;
 
     for (int i = 0; i < length; i++) {
-        if (pos[i].x == -99) break;
+        if (pos[i].x == NULL_POS) break;
         if (i == APPLE) {
             source.x = 192;
             source.y = 0;

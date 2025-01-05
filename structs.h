@@ -2,6 +2,7 @@
 #define STRUCTS_H
 
 #define DEBUG           1 //0 - false; 1 - true
+#define NULL_POS        (-99)
 
 typedef struct {
     int width;
@@ -11,7 +12,7 @@ typedef struct {
     int start_length;
     int max_speed;
 
-    int acceleration;
+    float acceleration;
     int acceleration_interval;
     int apple_value;
     int orange_frequency;
