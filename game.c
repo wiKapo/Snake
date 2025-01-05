@@ -197,7 +197,7 @@ void CheckFruitCollision(game_t *game) {
         snake->length++;
         game->score += game->config.apple_value;
     } else if (snake->pos[0].x == game->objectPos[ORANGE].x && snake->pos[0].y == game->objectPos[ORANGE].y) {
-        PlaceObject(snake, ORANGE);
+        PlaceObject(game, ORANGE);
         snake->length++;
         game->score += game->config.orange_value;
     }
@@ -211,11 +211,16 @@ void NewGame(game_t *game) {
     game->snake.direction = UP;
     game->snake.speed = game->config.start_speed;
     game->snake.change_direction = 0;
+    //Clear snake positions
+    for (int i = 0; i < game->snake.length; i++)
+        game->snake.pos[i] = (point_t) {NULL_POS, NULL_POS};
+
     game->snake.length = game->config.start_length;
-    for (int i = 0; i < game->snake.length; i++) {
-        game->snake.pos[i].x = (game->area.w / 32 / 2) % 2 == 0 ? game->area.w / 32 / 2 - 1 : game->area.w / 32 / 2;
-        game->snake.pos[i].y = game->area.h / 32 / 2 + i;
-    }
+    for (int i = 0; i < game->snake.length; i++)
+        game->snake.pos[i] = (point_t) {
+                (game->area.w / 32 / 2) % 2 == 0 ? game->area.w / 32 / 2 - 1 : game->area.w / 32 / 2,
+                game->area.h / 32 / 2 + i};
+
     PlaceObject(game, APPLE);
 }
 
@@ -247,13 +252,8 @@ void PlaceObject(game_t *game, object_type_et type) {
 
     point_t newPos = (point_t) {rand() % game->area.w / 32, rand() % game->area.h / 32};
     while (CheckPosition(game->objectPos, game->snake.length + game->config.portal_count + 2, newPos)) {
-        newPos = newPos.x < game->area.w ? (point_t) {newPos.x++, newPos.y} :
-                 newPos.y < game->area.h ? (point_t) {0, newPos.y++} : (point_t) {0, 0};
-//        if (newPos.x < game->area.w) {
-//            newPos = (point_t) {newPos.x++, newPos.y};
-//        } else {
-//            newPos = newPos.y < game->area.h ? (point_t) {0, newPos.y++} : (point_t) {0, 0};
-//        }
+        newPos = newPos.x < game->area.w / 32 - 1 ? (point_t) {++newPos.x, newPos.y} :
+                 newPos.y < game->area.h / 32 - 1 ? (point_t) {0, ++newPos.y} : (point_t) {0, 0};
     }
 
     game->objectPos[object] = newPos;
