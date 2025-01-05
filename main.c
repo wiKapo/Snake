@@ -3,17 +3,14 @@
 #include "game.h"
 #include "draw.h"
 
-#define PADDING     40
-
 int main(int argc, char *argv[]) {
     game_t game = initGame();
-    uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0;
+    uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0, accelerationTime = 0;
 
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(game.renderer, screen);
 
-    const SDL_Rect gameArea = {PADDING, 30 + PADDING, ((screen->w) / 32 - 2) * 32, ((screen->h - 30) / 32 - 2) * 32};
-    const SDL_Rect gameBorder = {gameArea.x - 7, gameArea.y - 7, gameArea.w + 16, gameArea.h + 16};
+    const SDL_Rect gameBorder = {game.area.x - 8, game.area.y - 8, game.area.w + 16, game.area.h + 16};
 
     while (game.state != QUIT) {
 
@@ -24,50 +21,76 @@ int main(int argc, char *argv[]) {
 
         if (DEBUG) {
             char text[100];
-            sprintf(text, "HEAD POS X: %d Y: %d GAME ARENA W: %d H: %d", game.snake.pos->x, game.snake.pos->y,
-                    gameArea.w / 32, gameArea.h / 32);
-            DrawString(screen, game.charset, 50, 150, text);
+            sprintf(text, "HEAD POS X: %02d Y: %02d GAME ARENA squares %dx%d squares No %d", game.snake.pos->x,
+                    game.snake.pos->y,
+                    game.area.w / 32, game.area.h / 32, game.area.w / 32 * game.area.h / 32);
+            DrawString(screen, game.charset, 10, 32, text);
+            sprintf(text, "GAME ARENA %dx%d CONFIG WINDOW %dx%d", game.area.x, game.area.y,
+                    game.config.width, game.config.height);
+            DrawString(screen, game.charset, 10, 40, text);
+            sprintf(text, "APPLE POS %dx%d SPEED %.02f", game.objectPos[APPLE].x, game.objectPos[APPLE].y,
+                    game.snake.speed ? game.config.start_speed / (float)game.snake.speed : -99.9);
+            DrawString(screen, game.charset, 10, 48, text);
+            sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
+            DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text,
+                            (SDL_Color) {200, 200, 0});
         }
 
         HandleInput(&game);
-        DrawSnake(screen, game.objects, gameArea, game.snake.pos, game.snake.length);
 
         switch (game.state) {
             case INFO:
                 DrawHelp(screen, game.charset);
                 break;
             case NEW_GAME:
+                DrawGame(screen, game);
                 frameTime = tickPrevious = gameTime = pauseTime = 0;
                 break;
             case PLAY:
                 tickCurrent = SDL_GetTicks() - game.startTime - pauseTime;
                 frameTime += (tickCurrent - tickPrevious);
+                accelerationTime += (tickCurrent - tickPrevious);
                 gameTime += (tickCurrent - tickPrevious);
                 tickPrevious = tickCurrent;
 
-                int snakeSpeed = 200; //TODO connect with game config
-                if (frameTime > snakeSpeed) {
-                    HandleMovement(&game.snake, gameArea);
+                DrawGame(screen, game);
 
-                    if (CheckCollision(&game.snake) || CheckBorderCollision(gameArea, game.snake.pos[0]))
+                if (accelerationTime > game.config.acceleration_interval && game.snake.speed > game.config.max_speed) {
+                    game.snake.speed -= game.config.acceleration;
+                    accelerationTime -= game.config.acceleration_interval;
+                } else if (game.snake.speed < game.config.max_speed) {
+                    game.snake.speed = game.config.max_speed;
+                }
+
+                if (frameTime > game.snake.speed) {
+                    HandleMovement(&game.snake, game.area);
+
+                    CheckFruitCollision(&game);
+
+                    if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
                         game.state = GAME_OVER;
 
-                    game.deltaTime += snakeSpeed;
-                    frameTime -= snakeSpeed;
+                    game.deltaTime += game.snake.speed;
+                    frameTime -= game.snake.speed;
                 }
                 break;
             case GAME_OVER:
-                DrawGameOver(screen, game.charset, 12345, game.deltaTime);
+                DrawGame(screen, game);
+                DrawGameOver(screen, game.charset, game.score, game.deltaTime);
                 break;
             case WIN:
-                DrawWin(screen, game.charset, 99999, game.deltaTime);
+                DrawGame(screen, game);
+                DrawWin(screen, game.charset, game.score, game.deltaTime);
                 break;
             case LOAD:
+                DrawGame(screen, game);
                 break;
             case PAUSE:
+                DrawGame(screen, game);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 break;
             case PAUSE_INFO:
+                DrawGame(screen, game);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 DrawHelp(screen, game.charset);
                 break;

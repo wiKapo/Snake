@@ -1,6 +1,7 @@
 #include "initSnake.h"
 
 #define CONFIG_PATH     "../config.txt" //with cmake '../' is required
+#define PADDING         40
 
 config_t read_config(char *path);
 
@@ -8,46 +9,28 @@ void initSDL(game_t *game);
 
 void initAssets(game_t *game);
 
-point_t testPos[19] = {
-        {4, 2},
-        {3, 2},
-        {2, 2},
-        {2, 3},
-        {2, 4},
-        {3, 4},
-        {4, 4},
-        {4, 5},
-        {3, 5},
-        {2, 5},
-        {1, 5},
-        {1, 6},
-        {1, 7},
-        {1, 8},
-        {1, 9},
-        {2, 9},
-        {3, 9},
-        {3, 8},
-        {3, 7},
-};
-
 game_t initGame() {
     game_t game;
 
     game.config = read_config(CONFIG_PATH);
-    if (DEBUG) {
-        game.snake.pos = testPos;
-        game.snake.length = sizeof(testPos) / sizeof(*testPos);
-        game.snake.direction = RIGHT;
-        game.state = PLAY;
-    } else {
-        game.snake.pos = malloc(sizeof(point_t) * game.config.snake_length);
-        game.snake.length = game.config.snake_length;
-        game.snake.direction = UP;
-        game.state = INFO;
-    }
+    game.objectPos = malloc(sizeof(point_t) * (game.config.width * game.config.height));
+    for (int i = 0; i < game.config.width * game.config.height; i++)
+        game.objectPos[i] = (point_t) {-99, -99};
+
+    game.snake.pos = &game.objectPos[2 + game.config.start_length];
+    game.snake.length = game.config.start_length;
+    game.snake.direction = UP;
+    game.state = INFO;
     game.snake.change_direction = 0;
     game.startTime = 0;
     game.score = 0;
+    game.area = (SDL_Rect) {PADDING, 30 + PADDING, (game.config.width / 32 - 2) * 32,
+                            ((game.config.height - 30) / 32 - 2) * 32};
+    game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
+    for (int i = 0; i < game.config.portal_count; i++) {
+        game.object[i].pos = &game.objectPos[i];
+        game.object[i].show = 0;
+    }
 
     initSDL(&game);
     initAssets(&game);
@@ -67,13 +50,15 @@ config_t read_config(char *path) {
         char name[100];
         fscanf(file, "%s", name);
         if (!strcmp(name, "WINDOW_WIDTH"))
-            fscanf(file, "%d", &config.window.width);
+            fscanf(file, "%d", &config.width);
         else if (!strcmp(name, "WINDOW_HEIGHT"))
-            fscanf(file, "%d", &config.window.height);
+            fscanf(file, "%d", &config.height);
         else if (!strcmp(name, "START_SPEED"))
-            fscanf(file, "%f", &config.snake_speed);
+            fscanf(file, "%d", &config.start_speed);
         else if (!strcmp(name, "START_LENGTH"))
-            fscanf(file, "%d", &config.snake_length);
+            fscanf(file, "%d", &config.start_length);
+        else if (!strcmp(name, "MAX_SPEED"))
+            fscanf(file, "%d", &config.max_speed);
         else if (!strcmp(name, "APPLE_VALUE"))
             fscanf(file, "%d", &config.apple_value);
         else if (!strcmp(name, "ORANGE_FREQUENCY"))
@@ -81,11 +66,15 @@ config_t read_config(char *path) {
         else if (!strcmp(name, "ORANGE_VALUE"))
             fscanf(file, "%d", &config.orange_value);
         else if (!strcmp(name, "ACCELERATION"))
-            fscanf(file, "%f", &config.acceleration);
+            fscanf(file, "%d", &config.acceleration);
+        else if (!strcmp(name, "ACCELERATION_INTERVAL"))
+            fscanf(file, "%d", &config.acceleration_interval);
         else if (!strcmp(name, "BONUS_SLOW_DOWN"))
-            fscanf(file, "%f", &config.slow_down);
+            fscanf(file, "%d", &config.slow_down);
         else if (!strcmp(name, "FRUIT_MODE"))
             fscanf(file, "%d", &config.fruit_mode);
+        else if (!strcmp(name, "PORTAL_COUNT"))
+            fscanf(file, "%d", &config.portal_count);
     }
     fclose(file);
     return config;
@@ -99,10 +88,10 @@ void initSDL(game_t *game) {
     }
 
     game->window = SDL_CreateWindow("Snake wiKapo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                    config.window.width, config.window.height, SDL_WINDOW_SHOWN);
+                                    config.width, config.height, SDL_WINDOW_SHOWN);
 
     if (!game->window) {
-        SDL_LogError(0, "Failed to open %d x %d window: %s\n", config.window.width, config.window.height,
+        SDL_LogError(0, "Failed to open %d x %d window: %s\n", config.width, config.height,
                      SDL_GetError());
         exit(1);
     }
@@ -118,12 +107,12 @@ void initSDL(game_t *game) {
 void initAssets(game_t *game) {
     game->charset = SDL_LoadBMP("../assets/cs8x8.bmp");
     if (DEBUG)
-        game->objects = SDL_LoadBMP("../assets/snakeDEBUG.bmp");
+        game->objectMap = SDL_LoadBMP("../assets/snakeDEBUG.bmp");
     else
-        game->objects = SDL_LoadBMP("../assets/snake.bmp");
+        game->objectMap = SDL_LoadBMP("../assets/snake.bmp");
 
 
-    if (!game->charset || !game->objects) {
+    if (!game->charset || !game->objectMap) {
         SDL_LogError(0, "Failed to load assets: %s\n", SDL_GetError());
         SDL_Quit();
         exit(99);

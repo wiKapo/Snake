@@ -218,15 +218,28 @@ part_t GetDirection(const point_t last, const point_t curr, const point_t next) 
     return snakePart;
 }
 
-void
-DrawSnake(SDL_Surface *screen, SDL_Surface *objects, const SDL_Rect gameArea, const point_t *pos, const int length) {
+void DrawSnake(
+        SDL_Surface
+        *screen,
+        SDL_Surface *objects,
+        const SDL_Rect gameArea,
+        const point_t *pos,
+        const int length
+) {
     SDL_Rect source, destination;
-    source.w = 32;
-    source.h = 32;
-    destination.w = 32;
-    destination.h = 32;
+    source.
+            w = 32;
+    source.
+            h = 32;
+    destination.
+            w = 32;
+    destination.
+            h = 32;
 
-    for (int i = 0; i < length; i++) {
+    for (
+            int i = 0;
+            i < length;
+            i++) {
         part_t snakePart = GetDirection(
                 i > 0 ? pos[i - 1] : (point_t) {-99, -99},
                 pos[i],
@@ -234,87 +247,93 @@ DrawSnake(SDL_Surface *screen, SDL_Surface *objects, const SDL_Rect gameArea, co
 
         switch (snakePart.type) {
             case HEAD:
-                source.y = 0;
+                source.
+                        y = 0;
                 break;
             case BODY:
             default:
                 if (snakePart.direction >= RIGHT && snakePart.direction <= UP)
-                    source.y = i % 2 ? 32 : 64;
-                else source.y = i % 2 ? 160 : 192;
+                    source.
+                            y = i % 2 ? 32 : 64;
+                else
+                    source.
+                            y = i % 2 ? 160 : 192;
                 break;
             case TAIL:
-                source.y = i % 2 ? 96 : 128;
+                source.
+                        y = i % 2 ? 96 : 128;
         }
 
         switch (snakePart.direction) {
             case RIGHT:
             case LEFTUP:
-                source.x = 0;
+                source.
+                        x = 0;
                 break;
             case DOWN:
             case LEFTDOWN:
-                source.x = 32;
+                source.
+                        x = 32;
                 break;
             case LEFT:
             case RIGHTDOWN:
-                source.x = 64;
+                source.
+                        x = 64;
                 break;
             case UP:
             case RIGHTUP:
-                source.x = 96;
+                source.
+                        x = 96;
                 break;
             case NONE:
             default:
-                source.x = 224;
-                source.y = 224;
+                source.
+                        x = 224;
+                source.
+                        y = 224;
                 break;
         }
-
-        destination.x = pos[i].x * 32 + gameArea.x;
-        destination.y = pos[i].y * 32 + gameArea.y;
-        SDL_BlitSurface(objects, &source, screen, &destination);
+        destination.
+                x = pos[i].x * 32 + gameArea.x;
+        destination.
+                y = pos[i].y * 32 + gameArea.y;
+        SDL_BlitSurface(objects,
+                        &source, screen, &destination);
     }
 }
 
-//void DrawObject(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *objects) {
-//    int px, py, c;
-//    SDL_Rect source, destination;
-//    source.w = 32;
-//    source.h = 32;
-//    destination.w = 32;
-//    destination.h = 32;
-//    while (*text) {
-//        c = *text & 255;
-//        px = (c % 8) * 32;
-//        py = (c / 8) * 32;
-//        source.x = px;
-//        source.y = py;
-//        destination.x = x;
-//        destination.y = y;
-//        SDL_BlitSurface(objects, &source, screen, &destination);
-//        x += 32;
-//        text++;
-//    };
-//};
+void DrawObjects(
+        SDL_Surface *screen,
+        SDL_Surface *objects,
+        const SDL_Rect gameArea,
+        const point_t *pos,
+        const int length
+) {
+    SDL_Rect source, destination;
+    source.w = 32;
+    source.h = 32;
+    destination.w = 32;
+    destination.h = 32;
 
-void DrawSurface(SDL_Surface *screen, SDL_Surface *sprite, int x, int y) {
-    SDL_Rect dest;
-    dest.x = x - sprite->w / 2;
-    dest.y = y - sprite->h / 2;
-    dest.w = sprite->w;
-    dest.h = sprite->h;
-    SDL_BlitSurface(sprite, nullptr, screen, &dest);
+    for (int i = 0; i < length; i++) {
+        if (pos[i].x == -99) break;
+        if (i == APPLE) {
+            source.x = 192;
+            source.y = 0;
+        } else if (i == ORANGE) {
+            source.x = 224;
+            source.y = 0;
+        } else {
+            source.x = 160;
+            source.y = 0;
+        }
+        destination.x = pos[i].x * 32 + gameArea.x;
+        destination.y = pos[i].y * 32 + gameArea.y;
+        SDL_BlitSurface(objects, &source, screen, &destination);
+    };
+};
+
+void DrawGame(SDL_Surface *screen, game_t game) {
+    DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
+    DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count);
 }
-
-//void TestPrint(SDL_Surface *screen, SDL_Surface *objects) {
-//    SDL_Rect source, destination;
-//    source.w = 32;
-//    source.h = 32;
-//    destination.w = 32;
-//    destination.h = 32;
-//    source.x = 0;
-//    source.y = 0;
-//    destination.x = 100;
-//    destination.y = 100;
-//    SDL_BlitSurface(objects, &source, screen, &destination);
-//}

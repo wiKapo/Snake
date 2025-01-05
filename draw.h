@@ -38,10 +38,8 @@ void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint
 
 void DrawSnake(SDL_Surface *screen, SDL_Surface *objects, SDL_Rect gameArea, const point_t *pos, int length);
 
-void DrawObject(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);
+void DrawObjects(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect gameArea, const point_t *pos, int length);
 
-void DrawSurface(SDL_Surface *screen, SDL_Surface *sprite, int x, int y);
-
-void TestPrint(SDL_Surface *screen, SDL_Surface *objects);
+void DrawGame(SDL_Surface *screen, game_t game);
 
 #endif //SNAKEWKP_DRAW_H
