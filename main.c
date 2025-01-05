@@ -67,8 +67,9 @@ int main(int argc, char *argv[]) {
                     HandleMovement(&game.snake, game.area);
 
                     CheckFruitCollision(&game);
-
-                    if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
+                    if (game.snake.length == game.area.w / 32 * game.area.h / 32) {
+                        game.state = WIN;
+                    } else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
                         game.state = GAME_OVER;
 
                     game.deltaTime += game.snake.speed;
