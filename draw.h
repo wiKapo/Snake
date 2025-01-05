@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <stdio.h>
 #include "structs.h"
+#include "colors.h"
 
 #ifndef SNAKEWKP_DRAW_H
 #define SNAKEWKP_DRAW_H
@@ -26,7 +27,9 @@ void DrawHelp(SDL_Surface *screen, SDL_Surface *charset);
 
 void DrawBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type);
 
-void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type, uint32_t color);
+void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type, SDL_Color color);
+
+void FillScreen(SDL_Surface *screen, SDL_Color color);
 
 void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);
 

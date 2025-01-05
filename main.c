@@ -2,6 +2,7 @@
 #include "initSnake.h"
 #include "game.h"
 #include "draw.h"
+#include "colors.h"
 
 int main(int argc, char *argv[]) {
     game_t game = initGame();
@@ -14,10 +15,10 @@ int main(int argc, char *argv[]) {
 
     while (game.state != QUIT) {
 
-        SDL_FillRect(screen, nullptr, SDL_MapRGB(screen->format, 64, 41, 5));
+        FillScreen(screen, BROWN);
 
         DrawTopBar(screen, game.charset, gameTime, game.state, game.score);
-        DrawColorBox(screen, game.charset, gameBorder, 0, SDL_MapRGB(screen->format, 0, 128, 0));
+        DrawColorBox(screen, game.charset, gameBorder, 0, GRASS);
 
         if (DEBUG) {
             char text[100];
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
             DrawString(screen, game.charset, 10, 48, text);
             sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
             DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text,
-                            (SDL_Color) {200, 200, 0});
+                            YELLOW);
         }
 
         HandleInput(&game);
