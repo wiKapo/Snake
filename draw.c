@@ -1,24 +1,25 @@
 #include "draw.h"
 
-#define ANIMATION_TIME 250
+#define ANIMATION_TIME      250
+#define CHAR_SIZE           8
 
 void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score) {
     DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 30}, 1);
 
     char text[100];
     sprintf(text, "Snake by wiKapo");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, 10, text, GREEN);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, 10, text, GREEN);
 
     sprintf(text, "Score: %05d", score);
     DrawString(screen, charset, 30, 10, text);
 
-    sprintf(text, "1234ABCDEFGHI", score);
+    sprintf(text, "1234ABCDefGhI");
     DrawColorString(screen, charset, 128, 10, text, DARK_GRAY);
 
     if (state == PLAY)
         DrawTime(screen, charset, screen->w - 100, 10, deltaTime);
     else if (state == PAUSE || state == PAUSE_INFO) {
-        DrawString(screen, charset, screen->w - 100 - 9 * 8, 10, "[PAUSED]");
+        DrawString(screen, charset, screen->w - 100 - 9 * CHAR_SIZE, 10, "[PAUSED]");
         DrawColorTime(screen, charset, screen->w - 100, 10, deltaTime, GRAY);
     } else if (state == NEW_GAME)
         DrawColorTime(screen, charset, screen->w - 100, 10, deltaTime, GRAY);
@@ -27,77 +28,82 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
 }
 
 void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
-    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 30 * 8 / 2, screen->h / 3, 30 * 8, 12 * 8}, 0);
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 15 * CHAR_SIZE, screen->h / 3, 30 * CHAR_SIZE, 12 * CHAR_SIZE},
+            0);
 
     char text[100];
     sprintf(text, "GAME OVER");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 15, text, RED);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 1.5 * CHAR_SIZE,
+                    text, RED);
 
     sprintf(text, "Score: %d", score);
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 30, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 3.5 * CHAR_SIZE, text);
 
-    DrawTime(screen, charset, screen->w / 2 - 9 * 8 / 2, screen->h / 3 + 45, time);
+    DrawTime(screen, charset, screen->w / 2 - 9 * CHAR_SIZE / 2, screen->h / 3 + 5.5 * CHAR_SIZE, time);
 
     sprintf(text, "             New game [n]");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
-                    LIGHT_GREEN);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_GREEN);
     sprintf(text, "Quit [Esc]               ");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
-                    LIGHT_RED);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_RED);
 }
 
 void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
-    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 30 * 8 / 2, screen->h / 3, 30 * 8, 12 * 8}, 0);
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 15 * CHAR_SIZE, screen->h / 3, 30 * CHAR_SIZE, 12 * CHAR_SIZE},
+            0);
 
     char text[100];
     sprintf(text, "CONGRATULATIONS! YOU WON!");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 15, text, YELLOW);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 1.5 * CHAR_SIZE,
+                    text, YELLOW);
 
     sprintf(text, "Score: %d", score);
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 30, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 3.5 * CHAR_SIZE, text);
 
-    DrawTime(screen, charset, screen->w / 2 - 9 * 8 / 2, screen->h / 3 + 45, time);
+    DrawTime(screen, charset, screen->w / 2 - 9 * CHAR_SIZE / 2, screen->h / 3 + 5.5 * CHAR_SIZE, time);
 
     sprintf(text, "             New game [n]");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
-                    LIGHT_GREEN);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_GREEN);
     sprintf(text, "Quit [Esc]               ");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 3 + 75, text,
-                    LIGHT_RED);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_RED);
 }
 
 void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
-    //Main box TODO fix size
-    DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4 + 16}, 1);
-    //"Controls" text box TODO fix size
-    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 50, screen->h / 4 + 10, 100, 30}, 0);
+    DrawBox(screen, charset, (SDL_Rect)
+            {screen->w / 2 - 15 * CHAR_SIZE, screen->h / 4, 30 * CHAR_SIZE, 26 * CHAR_SIZE}, 1);
+    DrawBox(screen, charset, (SDL_Rect)
+            {screen->w / 2 - 6 * CHAR_SIZE, screen->h / 4 + CHAR_SIZE, 12 * CHAR_SIZE, 4 * CHAR_SIZE}, 0);
 
     char text[100];
     sprintf(text, "Controls");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 20, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 2.5 * CHAR_SIZE, text);
 
     sprintf(text, "New game        [n] ");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 40, text,
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 5.5 * CHAR_SIZE,
+                    text,
                     LIGHT_GREEN);
     sprintf(text, "Move up         [\030] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 55, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 7.5 * CHAR_SIZE, text);
     sprintf(text, "Move down       [\031] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 70, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 9.5 * CHAR_SIZE, text);
     sprintf(text, "Move left       [\032] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 85, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 11.5 * CHAR_SIZE, text);
     sprintf(text, "Move right      [\033] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 100, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 13.5 * CHAR_SIZE, text);
     sprintf(text, "Quick save      [s] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 115, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 15.5 * CHAR_SIZE, text);
     sprintf(text, "Quick load      [l] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 130, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 17.5 * CHAR_SIZE, text);
     sprintf(text, "Pause game      [p] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 145, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 19.5 * CHAR_SIZE, text);
     sprintf(text, "Show controls   [h] ");
-    DrawString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 160, text);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 21.5 * CHAR_SIZE, text);
     sprintf(text, "Quit game      [Esc]");
-    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, screen->h / 4 + 175, text,
-                    LIGHT_RED);
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 23.5 * CHAR_SIZE,
+                    text, LIGHT_RED);
 }
 
 //type: 0 - single line, 1 - double line
@@ -116,31 +122,39 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
 
     SDL_FillRect(screen, &(SDL_Rect) {x, y, w, h}, SDL_MapRGB(screen->format, color.r, color.g, color.b));
 
-    for (int i = x + 8; i < x + w - 8; i += 8) {
-        SDL_BlitSurface(charset, &(SDL_Rect) {(border[3] % 16) * 8, (border[3] / 16) * 8, 8, 8},
-                        screen, &(SDL_Rect) {i, y, 8, 8});
-        SDL_BlitSurface(charset, &(SDL_Rect) {(border[3] % 16) * 8, (border[3] / 16) * 8, 8, 8},
-                        screen, &(SDL_Rect) {i, y + h - 8, 8, 8});
+    for (int i = x + CHAR_SIZE; i < x + w - CHAR_SIZE; i += CHAR_SIZE) { //HORIZONTAL LINES
+        SDL_BlitSurface(charset, &(SDL_Rect)
+                                {(border[3] % 16) * CHAR_SIZE, (border[3] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                        screen, &(SDL_Rect) {i, y, CHAR_SIZE, CHAR_SIZE});
+        SDL_BlitSurface(charset, &(SDL_Rect)
+                                {(border[3] % 16) * CHAR_SIZE, (border[3] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                        screen, &(SDL_Rect) {i, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});
     }
 
-    for (int i = y + 8; i < y + h - 8; i += 8) {
-        SDL_BlitSurface(charset, &(SDL_Rect) {(border[0] % 16) * 8, (border[0] / 16) * 8, 8, 8},
-                        screen, &(SDL_Rect) {x, i, 8, 8});
-        SDL_BlitSurface(charset, &(SDL_Rect) {(border[0] % 16) * 8, (border[0] / 16) * 8, 8, 8},
-                        screen, &(SDL_Rect) {x + w - 8, i, 8, 8});
+    for (int i = y + CHAR_SIZE; i < y + h - CHAR_SIZE; i += CHAR_SIZE) { //VERTICAL LINES
+        SDL_BlitSurface(charset, &(SDL_Rect)
+                                {(border[0] % 16) * CHAR_SIZE, (border[0] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                        screen, &(SDL_Rect) {x, i, CHAR_SIZE, CHAR_SIZE});
+        SDL_BlitSurface(charset, &(SDL_Rect)
+                                {(border[0] % 16) * CHAR_SIZE, (border[0] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                        screen, &(SDL_Rect) {x + w - CHAR_SIZE, i, CHAR_SIZE, CHAR_SIZE});
     }
 
-    SDL_BlitSurface(charset, &(SDL_Rect) {(border[1] % 16) * 8, (border[1] / 16) * 8, 8, 8},
-                    screen, &(SDL_Rect) {x + w - 8, y, 8, 8});              //TOP RIGHT
+    SDL_BlitSurface(charset, &(SDL_Rect)
+                            {(border[1] % 16) * CHAR_SIZE, (border[1] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y, CHAR_SIZE, CHAR_SIZE});              //TOP RIGHT
 
-    SDL_BlitSurface(charset, &(SDL_Rect) {(border[2] % 16) * 8, (border[2] / 16) * 8, 8, 8},
-                    screen, &(SDL_Rect) {x, y + h - 8, 8, 8});              //BOTTOM LEFT
+    SDL_BlitSurface(charset, &(SDL_Rect)
+                            {(border[2] % 16) * CHAR_SIZE, (border[2] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                    screen, &(SDL_Rect) {x, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});              //BOTTOM LEFT
 
-    SDL_BlitSurface(charset, &(SDL_Rect) {(border[4] % 16) * 8, (border[4] / 16) * 8, 8, 8},
-                    screen, &(SDL_Rect) {x + w - 8, y + h - 8, 8, 8});   //BOTTOM RIGHT
+    SDL_BlitSurface(charset, &(SDL_Rect)
+                            {(border[4] % 16) * CHAR_SIZE, (border[4] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});   //BOTTOM RIGHT
 
-    SDL_BlitSurface(charset, &(SDL_Rect) {(border[5] % 16) * 8, (border[5] / 16) * 8, 8, 8},
-                    screen, &(SDL_Rect) {x, y, 8, 8});                          // TOP LEFT
+    SDL_BlitSurface(charset, &(SDL_Rect)
+                            {(border[5] % 16) * CHAR_SIZE, (border[5] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
+                    screen, &(SDL_Rect) {x, y, CHAR_SIZE, CHAR_SIZE});                          // TOP LEFT
 }
 
 void DrawProgressBar(
@@ -152,7 +166,7 @@ void DrawProgressBar(
         SDL_Color color
 ) {
     SDL_Rect source, destination;
-    source.w = source.h = destination.w = destination.h = 8;
+    source.w = source.h = destination.w = destination.h = CHAR_SIZE;
     source.x = 0;
     source.y = 13 * source.h;
     destination.x = rect.x;
@@ -161,7 +175,7 @@ void DrawProgressBar(
                  SDL_MapRGB(screen->format, color.r, color.g, color.b));
     SDL_BlitSurface(charset, &source, screen, &destination);
     source.x = source.w;
-    for (int i = 0; i < rect.w / 8 - 2; i++) {
+    for (int i = 0; i < rect.w / CHAR_SIZE - 2; i++) {
         destination.x += destination.w;
         SDL_BlitSurface(charset, &source, screen, &destination);
     }
@@ -177,17 +191,17 @@ void FillScreen(SDL_Surface *screen, SDL_Color color) {
 void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text) {
     int px, py, c;
     SDL_Rect source, destination;
-    source.w = source.h = destination.w = destination.h = 8;
+    source.w = source.h = destination.w = destination.h = CHAR_SIZE;
     while (*text) {
         c = *text & 255;
-        px = (c % 16) * 8;
-        py = (c / 16) * 8;
+        px = (c % 16) * CHAR_SIZE;
+        py = (c / 16) * CHAR_SIZE;
         source.x = px;
         source.y = py;
         destination.x = x;
         destination.y = y;
         SDL_BlitSurface(charset, &source, screen, &destination);
-        x += 8;
+        x += CHAR_SIZE;
         text++;
     }
 }
