@@ -17,13 +17,15 @@ game_t initGame() {
     for (int i = 0; i < game.config.width * game.config.height; i++)
         game.objectPos[i] = (point_t) {NULL_POS, NULL_POS};
 
-    game.snake.pos = &game.objectPos[2 + game.config.start_length];
+    game.snake.pos = &game.objectPos[2 + game.config.portal_count];
     game.snake.length = game.config.start_length;
     game.snake.direction = UP;
-    game.state = INFO;
+    game.snake.speed = game.config.start_speed;
     game.snake.change_direction = 0;
-    game.startTime = 0;
+    game.orangeTimer = -game.config.orange_delay;
     game.score = 0;
+    game.state = INFO;
+    game.startTime = 0;
     game.area = (SDL_Rect) {PADDING, 30 + PADDING, (game.config.width / 32 - 2) * 32,
                             ((game.config.height - 30) / 32 - 2) * 32};
     game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
@@ -40,7 +42,10 @@ game_t initGame() {
 
 config_t read_config(char *path) {
     FILE *file = fopen(path, "r");
-    config_t config = {{1280, 720}, 1, 3, 1, 1, 1, 5, 1, 1};
+    config_t config = {
+            1280, 720, 1, 3, 1,
+            0.1, 10000, 1, 10000, 5, 25,
+            0.3, 3, 4, 0};
     if (file == NULL) {
         SDL_LogError(0, "Config not found!");
         return config;
@@ -61,16 +66,20 @@ config_t read_config(char *path) {
             fscanf(file, "%d", &config.max_speed);
         else if (!strcmp(name, "APPLE_VALUE"))
             fscanf(file, "%d", &config.apple_value);
-        else if (!strcmp(name, "ORANGE_FREQUENCY"))
-            fscanf(file, "%d", &config.orange_frequency);
+        else if (!strcmp(name, "ORANGE_DELAY"))
+            fscanf(file, "%d", &config.orange_delay);
         else if (!strcmp(name, "ORANGE_VALUE"))
             fscanf(file, "%d", &config.orange_value);
+        else if (!strcmp(name, "ORANGE_CHANCE"))
+            fscanf(file, "%d", &config.orange_chance);
         else if (!strcmp(name, "ACCELERATION"))
             fscanf(file, "%f", &config.acceleration);
         else if (!strcmp(name, "ACCELERATION_INTERVAL"))
             fscanf(file, "%d", &config.acceleration_interval);
         else if (!strcmp(name, "BONUS_SLOW_DOWN"))
-            fscanf(file, "%d", &config.slow_down);
+            fscanf(file, "%f", &config.bonus_slow_down);
+        else if (!strcmp(name, "BONUS_SHORTEN"))
+            fscanf(file, "%d", &config.bonus_shorten);
         else if (!strcmp(name, "FRUIT_MODE"))
             fscanf(file, "%d", &config.fruit_mode);
         else if (!strcmp(name, "PORTAL_COUNT"))
@@ -79,6 +88,7 @@ config_t read_config(char *path) {
     fclose(file);
 
     config.acceleration = 1 - config.acceleration;
+    config.bonus_slow_down = 1 + config.bonus_slow_down;
     return config;
 }
 

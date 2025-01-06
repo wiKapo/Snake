@@ -29,6 +29,14 @@ void DrawBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type)
 
 void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int type, SDL_Color color);
 
+void DrawProgressBar(
+        SDL_Surface *screen,
+        SDL_Surface *charset,
+        SDL_Rect rect,
+        int value,
+        int maxValue,
+        SDL_Color color);
+
 void FillScreen(SDL_Surface *screen, SDL_Color color);
 
 void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text);

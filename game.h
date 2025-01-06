@@ -16,6 +16,8 @@ void CheckFruitCollision(game_t *game);
 
 void PlaceObject(game_t *game, object_type_et type);
 
+void RemoveObject(game_t *game, object_type_et type);
+
 char *GetStateKey(state_et state);
 
 #endif //SNAKEWKP_GAME_H

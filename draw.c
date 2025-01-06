@@ -9,7 +9,7 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     sprintf(text, "Snake by wiKapo");
     DrawColorString(screen, charset, screen->w / 2 - strlen(text) * 8 / 2, 10, text, GREEN);
 
-    sprintf(text, "Score: %04d", score);
+    sprintf(text, "Score: %05d", score);
     DrawString(screen, charset, 30, 10, text);
 
     sprintf(text, "1234ABCDEFGHI", score);
@@ -67,9 +67,9 @@ void DrawWin(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
 }
 
 void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
-    //Main box
+    //Main box TODO fix size
     DrawBox(screen, charset, (SDL_Rect) {screen->w / 4, screen->h / 4, screen->w / 2, screen->h / 4 + 16}, 1);
-    //"Controls" text box
+    //"Controls" text box TODO fix size
     DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 50, screen->h / 4 + 10, 100, 30}, 0);
 
     char text[100];
@@ -143,6 +143,33 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
                     screen, &(SDL_Rect) {x, y, 8, 8});                          // TOP LEFT
 }
 
+void DrawProgressBar(
+        SDL_Surface *screen,
+        SDL_Surface *charset,
+        SDL_Rect rect,
+        int value,
+        int maxValue,
+        SDL_Color color
+) {
+    SDL_Rect source, destination;
+    source.w = source.h = destination.w = destination.h = 8;
+    source.x = 0;
+    source.y = 13 * source.h;
+    destination.x = rect.x;
+    destination.y = rect.y;
+    SDL_FillRect(screen, &(SDL_Rect) {rect.x, rect.y, rect.w * (value / (float) maxValue), rect.h},
+                 SDL_MapRGB(screen->format, color.r, color.g, color.b));
+    SDL_BlitSurface(charset, &source, screen, &destination);
+    source.x = source.w;
+    for (int i = 0; i < rect.w / 8 - 2; i++) {
+        destination.x += destination.w;
+        SDL_BlitSurface(charset, &source, screen, &destination);
+    }
+    source.x = source.w * 2;
+    destination.x += destination.w;
+    SDL_BlitSurface(charset, &source, screen, &destination);
+}
+
 void FillScreen(SDL_Surface *screen, SDL_Color color) {
     SDL_FillRect(screen, nullptr, SDL_MapRGB(screen->format, color.r, color.g, color.b));
 }
@@ -150,10 +177,7 @@ void FillScreen(SDL_Surface *screen, SDL_Color color) {
 void DrawString(SDL_Surface *screen, SDL_Surface *charset, int x, int y, const char *text) {
     int px, py, c;
     SDL_Rect source, destination;
-    source.w = 8;
-    source.h = 8;
-    destination.w = 8;
-    destination.h = 8;
+    source.w = source.h = destination.w = destination.h = 8;
     while (*text) {
         c = *text & 255;
         px = (c % 16) * 8;
@@ -237,10 +261,7 @@ void DrawSnake(
         const int length
 ) {
     SDL_Rect source, destination;
-    source.w = 32;
-    source.h = 32;
-    destination.w = 32;
-    destination.h = 32;
+    source.w = source.h = destination.w = destination.h = 32;
 
     for (int i = 0; i < length; i++) {
         part_t snakePart = GetDirection(
@@ -302,10 +323,7 @@ void DrawObjects(
         int type
 ) {
     SDL_Rect source, destination;
-    source.w = 32;
-    source.h = 32;
-    destination.w = 32;
-    destination.h = 32;
+    source.w = source.h = destination.w = destination.h = 32;
 
     for (int i = 0; i < length; i++) {
         if (pos[i].x == NULL_POS) break;

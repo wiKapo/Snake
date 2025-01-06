@@ -15,11 +15,14 @@ typedef struct {
     float acceleration;
     int acceleration_interval;
     int apple_value;
-    int orange_frequency;
+    int orange_delay;
     int orange_value;
-    int slow_down;
-    int portal_count;
+    int orange_chance;
+    // Orange bonus
+    float bonus_slow_down;
+    int bonus_shorten;
 
+    int portal_count;
     int fruit_mode;
 } config_t;
 
@@ -85,6 +88,7 @@ typedef struct {
     object_t *object;
     uint32_t startTime;
     uint32_t deltaTime;
+    int orangeTimer;
     int score;
 } game_t;
 

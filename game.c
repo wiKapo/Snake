@@ -192,14 +192,25 @@ int CheckBorderCollision(SDL_Rect gameBoard, point_t snakeHead) {
 
 void CheckFruitCollision(game_t *game) {
     snake_t *snake = &game->snake;
-    if (snake->pos[0].x == game->objectPos[APPLE].x && snake->pos[0].y == game->objectPos[APPLE].y) {
+    if (snake->pos[0].x == game->object[APPLE].pos->x && snake->pos[0].y == game->object[APPLE].pos->y) {
         PlaceObject(game, APPLE);
         snake->length++;
         game->score += game->config.apple_value;
-    } else if (snake->pos[0].x == game->objectPos[ORANGE].x && snake->pos[0].y == game->objectPos[ORANGE].y) {
-        PlaceObject(game, ORANGE);
-        snake->length++;
+    } else if (snake->pos[0].x == game->object[ORANGE].pos->x && snake->pos[0].y == game->object[ORANGE].pos->y) {
+        RemoveObject(game, ORANGE);
         game->score += game->config.orange_value;
+        game->orangeTimer = -game->config.orange_delay;
+        if (rand() % 100 < 50) {
+            if (snake->length - game->config.bonus_shorten < game->config.start_length) {
+                for (int i = game->config.start_length; i < snake->length; i++)
+                    snake->pos[i] = (point_t) {NULL_POS, NULL_POS};
+                snake->length = game->config.start_length;
+            } else {
+                for (int i = snake->length - game->config.bonus_shorten; i < snake->length; i++)
+                    snake->pos[i] = (point_t) {NULL_POS, NULL_POS};
+                snake->length -= game->config.bonus_shorten;
+            }
+        } else snake->speed *= game->config.bonus_slow_down;
     }
 }
 
@@ -208,11 +219,12 @@ void NewGame(game_t *game) {
     game->startTime = 0;
     game->deltaTime = 0;
     game->score = 0;
+    game->orangeTimer = -game->config.orange_delay;
     game->snake.direction = UP;
     game->snake.speed = game->config.start_speed;
     game->snake.change_direction = 0;
     //Clear snake positions
-    for (int i = 0; i < game->snake.length; i++)
+    for (int i = game->config.start_length; i < game->snake.length; i++)
         game->snake.pos[i] = (point_t) {NULL_POS, NULL_POS};
 
     game->snake.length = game->config.start_length;
@@ -222,6 +234,8 @@ void NewGame(game_t *game) {
                 game->area.h / 32 / 2 + i};
 
     PlaceObject(game, APPLE);
+    RemoveObject(game, ORANGE);
+    RemoveObject(game, PORTAL);
 }
 
 void QuickSave() {}
@@ -243,21 +257,35 @@ int CheckPosition(point_t *pos, int length, point_t newPos) {
     return 0;
 }
 
-void PlaceObject(game_t *game, object_type_et type) {
-    int object;
-    if (type == APPLE || type == ORANGE) object = type;
-    else
-        for (int i = type; i < game->config.portal_count; i++)
-            if (game->object[i].show == 0) object = i;
-
+void DoPlace(game_t *game, int object) {
     point_t newPos = (point_t) {rand() % game->area.w / 32, rand() % game->area.h / 32};
     while (CheckPosition(game->objectPos, game->snake.length + game->config.portal_count + 2, newPos)) {
         newPos = newPos.x < game->area.w / 32 - 1 ? (point_t) {++newPos.x, newPos.y} :
                  newPos.y < game->area.h / 32 - 1 ? (point_t) {0, ++newPos.y} : (point_t) {0, 0};
     }
 
-    game->objectPos[object] = newPos;
+    *game->object[object].pos = newPos;
     game->object[object].show = 1;
+}
+
+void PlaceObject(game_t *game, object_type_et type) {
+    if (type == APPLE || type == ORANGE)
+        DoPlace(game, type);
+    else
+        for (int i = type; i < game->config.portal_count; i++)
+            if (game->object[i].show == 0) DoPlace(game, i);
+}
+
+void DoRemove(game_t *game, int object) {
+    *game->object[object].pos = (point_t) {NULL_POS, NULL_POS};
+    game->object[object].show = 0;
+}
+
+void RemoveObject(game_t *game, object_type_et type) {
+    if (type == APPLE || type == ORANGE) DoRemove(game, type);
+    else
+        for (int i = type; i < game->config.portal_count; i++)
+            if (game->object[i].show == 1) DoRemove(game, i);
 }
 
 char *GetStateKey(state_et state) {

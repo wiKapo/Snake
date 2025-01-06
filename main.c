@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     game_t game = initGame();
     //There has to be a better way to do this      V               V              V               V                     V...
     uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0, accelerationTime = 0, animationTime = 0;
+    int delta = 0;
 
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(game.renderer, screen);
@@ -23,19 +24,29 @@ int main(int argc, char *argv[]) {
 
         if (DEBUG) {
             char text[100];
-            sprintf(text, "HEAD POS X: %02d Y: %02d GAME ARENA squares %dx%d squares No %d", game.snake.pos->x,
-                    game.snake.pos->y,
-                    game.area.w / 32, game.area.h / 32, game.area.w / 32 * game.area.h / 32);
+            //TOP DEBUG
+            sprintf(text, "SNAKE: HEAD %02dx%02d SPEED %f MOVE TIME %d LENGTH %d",
+                    game.snake.pos->x, game.snake.pos->y, game.config.start_speed / (float) game.snake.speed,
+                    game.snake.speed, game.snake.length);
             DrawString(screen, game.charset, 10, 32, text);
-            sprintf(text, "GAME ARENA %dx%d CONFIG WINDOW %dx%d", game.area.x, game.area.y,
+            sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.area.w / 32, game.area.h / 32,
                     game.config.width, game.config.height);
             DrawString(screen, game.charset, 10, 40, text);
-            sprintf(text, "APPLE POS %dx%d SPEED %f MOVE TIME %d", game.objectPos[APPLE].x, game.objectPos[APPLE].y,
-                    game.snake.speed ? game.config.start_speed / (float) game.snake.speed : -99.9, game.snake.speed);
-            DrawString(screen, game.charset, 10, 48, text);
             sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
-            DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text,
-                            YELLOW);
+            DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text, YELLOW);
+
+            //BOTTOM DEBUG
+            if (game.orangeTimer > 0)
+                sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d ORANGE PROGRESS %.2f",
+                        game.orangeTimer, game.config.orange_chance,
+                        game.orangeTimer / (float) game.config.orange_delay);
+            else sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d", game.orangeTimer, game.config.orange_chance);
+            DrawString(screen, game.charset, 10, screen->h - 16, text);
+
+            sprintf(text, "APPLE POS %02dx%02d ORANGE POS %02dx%02d",
+                    game.objectPos[APPLE].x, game.objectPos[APPLE].y,
+                    game.objectPos[ORANGE].x, game.objectPos[ORANGE].y);
+            DrawString(screen, game.charset, 10, screen->h - 8, text);
         }
 
         HandleInput(&game);
@@ -50,12 +61,33 @@ int main(int argc, char *argv[]) {
                 break;
             case PLAY:
                 tickCurrent = SDL_GetTicks() - game.startTime - pauseTime;
+                delta = tickCurrent - tickPrevious;
                 // me no likey
-                frameTime += (tickCurrent - tickPrevious);
-                accelerationTime += (tickCurrent - tickPrevious);
-                gameTime += (tickCurrent - tickPrevious);
-                animationTime += (tickCurrent - tickPrevious);
+                frameTime += delta;
+                accelerationTime += delta;
+                gameTime += delta;
+                animationTime += delta;
                 //eugh ^
+
+                if (game.orangeTimer < 0) {
+                    game.orangeTimer += delta;
+                    if (game.orangeTimer == 0)
+                        if (rand() % 100 < game.config.orange_chance) {
+                            PlaceObject(&game, ORANGE);
+                            game.orangeTimer = game.config.orange_delay;
+                        } else game.orangeTimer = -game.config.orange_delay / 2;
+                } else if (game.orangeTimer > 0) {
+                    DrawProgressBar(
+                            screen, game.charset,
+                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
+                            game.orangeTimer, game.config.orange_delay, ORANGE_COLOR);
+                    game.orangeTimer -= delta;
+                    if (game.orangeTimer == 0) {
+                        RemoveObject(&game, ORANGE);
+                        game.orangeTimer = -game.config.orange_delay;
+                    }
+                }
+
                 tickPrevious = tickCurrent;
 
                 DrawGame(screen, game, &animationTime);
@@ -68,16 +100,15 @@ int main(int argc, char *argv[]) {
                 }
 
                 if (frameTime > game.snake.speed) {
+                    game.deltaTime += game.snake.speed;
+                    frameTime -= game.snake.speed;
+
                     HandleMovement(&game.snake, game.area);
 
                     CheckFruitCollision(&game);
-                    if (game.snake.length == game.area.w / 32 * game.area.h / 32) {
-                        game.state = WIN;
-                    } else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
+                    if (game.snake.length == game.area.w / 32 * game.area.h / 32) game.state = WIN;
+                    else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
                         game.state = GAME_OVER;
-
-                    game.deltaTime += game.snake.speed;
-                    frameTime -= game.snake.speed;
                 }
                 break;
             case GAME_OVER:
@@ -90,13 +121,28 @@ int main(int argc, char *argv[]) {
                 break;
             case LOAD:
                 DrawGame(screen, game, &animationTime);
+                if (game.orangeTimer > 0)
+                    DrawProgressBar(
+                            screen, game.charset,
+                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
+                            game.orangeTimer, game.config.orange_delay, ORANGE_COLOR);
                 break;
             case PAUSE:
                 DrawGame(screen, game, &animationTime);
+                if (game.orangeTimer > 0)
+                    DrawProgressBar(
+                            screen, game.charset,
+                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
+                            game.orangeTimer, game.config.orange_delay, ORANGE_COLOR);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 break;
             case PAUSE_INFO:
                 DrawGame(screen, game, &animationTime);
+                if (game.orangeTimer > 0)
+                    DrawProgressBar(
+                            screen, game.charset,
+                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
+                            game.orangeTimer, game.config.orange_delay, ORANGE_COLOR);
                 pauseTime = SDL_GetTicks() - game.startTime - tickPrevious;
                 DrawHelp(screen, game.charset);
                 break;
