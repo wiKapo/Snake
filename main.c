@@ -18,13 +18,13 @@ int main(int argc, char *argv[]) {
     SDL_Surface *screen = SDL_GetWindowSurface(game.window);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(game.renderer, screen);
 
-    const SDL_Rect gameBorder = {game.area.x - 8, game.area.y - 8, game.area.w + 16, game.area.h + 16};
-
     while (game.state != QUIT) {
         FillScreen(screen, BROWN);
 
         DrawTopBar(screen, game.charset, game.clock.delta, game.state, game.score);
-        DrawColorBox(screen, game.charset, gameBorder, 0, GRASS);
+        DrawColorBox(screen, game.charset,
+                     (SDL_Rect) {game.area.x - CHAR_SIZE, game.area.y - CHAR_SIZE,
+                                 game.area.w + 2 * CHAR_SIZE, game.area.h + 2 * CHAR_SIZE}, 0, GRASS);
 
         if (DEBUG) DrawDebug(screen, game);
 
@@ -158,7 +158,7 @@ void HandleNewScore(SDL_Surface *screen, game_t *game) {
             else if (game->state == WIN)
                 DrawWin(screen, game->charset, game->score, game->clock.game);
             else
-                DrawString(screen, game->charset, game->area.w / 2 - 15 * 8, game->area.h / 2,
+                DrawString(screen, game->charset, game->area.w / 2 - 15 * CHAR_SIZE, game->area.h / 2,
                            "HUH?! This should be impossible");
             DrawScores(screen, game->charset, game->highScores);
             break;
@@ -171,31 +171,31 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
     sprintf(text, "SNAKE: HEAD %02dx%02d SPEED %f MOVE TIME %d LENGTH %d",
             game.snake.pos->x, game.snake.pos->y, game.config.start_speed / (float) game.snake.speed,
             game.snake.speed, game.snake.length);
-    DrawString(screen, game.charset, 10, 32, text);
+    DrawString(screen, game.charset, 10, 4.5 * CHAR_SIZE, text);
 
     sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.area.w / 32, game.area.h / 32,
-            game.config.width, game.config.height);
-    DrawString(screen, game.charset, 10, 40, text);
+            screen->w, screen->h);
+    DrawString(screen, game.charset, 10, 5.5 * CHAR_SIZE, text);
 
     sprintf(text, "INPUT STATE %s", GetInputStateKey(game.inputState));
-    DrawString(screen, game.charset, 10, 48, text);
+    DrawString(screen, game.charset, 10, 6.5 * CHAR_SIZE, text);
 
     sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
-    DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text, YELLOW);
+    DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * CHAR_SIZE, 6.5 * CHAR_SIZE, text, YELLOW);
 
     //BOTTOM DEBUG
     sprintf(text, "GAME %u DELTA %u ANIMATION %u", game.clock.game, game.clock.delta, game.clock.animation);
-    DrawString(screen, game.charset, 10, screen->h - 24, text);
+    DrawString(screen, game.charset, 10, screen->h - 3.5 * CHAR_SIZE, text);
 
     if (game.clock.orange > 0)
         sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d ORANGE PROGRESS %.2f",
                 game.clock.orange, game.config.orange_chance,
                 game.clock.orange / (float) game.config.orange_delay);
     else sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d", game.clock.orange, game.config.orange_chance);
-    DrawString(screen, game.charset, 10, screen->h - 16, text);
+    DrawString(screen, game.charset, 10, screen->h - 2.5 * CHAR_SIZE, text);
 
     sprintf(text, "APPLE POS %02dx%02d ORANGE POS %02dx%02d",
             game.objectPos[APPLE].x, game.objectPos[APPLE].y,
             game.objectPos[ORANGE].x, game.objectPos[ORANGE].y);
-    DrawString(screen, game.charset, 10, screen->h - 8, text);
+    DrawString(screen, game.charset, 10, screen->h - 1.5 * CHAR_SIZE, text);
 }

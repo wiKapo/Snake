@@ -3,6 +3,8 @@
 
 #define DEBUG           1   //0 - false; 1 - true
 #define NULL_POS        (-99)
+#define OBJECT_SIZE     32  //pixels
+#define CHAR_SIZE       8   //pixels
 
 typedef struct {
     int width;

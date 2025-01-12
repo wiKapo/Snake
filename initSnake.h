@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL.h>
 #include "structs.h"
+#include "file.h"
 
 #ifndef SNAKEWKP_INITSNAKE_H
 #define SNAKEWKP_INITSNAKE_H

@@ -1,8 +1,6 @@
 #include "initSnake.h"
-#include "file.h"
 
 #define CONFIG_PATH     "../config.txt" //with cmake '../' is required
-#define PADDING         40  //pixels
 
 void initSDL(game_t *game);
 
@@ -12,8 +10,9 @@ game_t initGame() {
     game_t game;
     game.config = GetConfig(CONFIG_PATH);
 
-    game.objectPos = malloc(sizeof(point_t) * (game.config.width * game.config.height));
-    for (int i = 0; i < game.config.width * game.config.height; i++)
+    int objectCount = game.config.width * game.config.height * OBJECT_SIZE;
+    game.objectPos = malloc(sizeof(point_t) * objectCount);
+    for (int i = 0; i < objectCount; i++)
         game.objectPos[i] = (point_t) {NULL_POS, NULL_POS};
 
     game.snake.pos = &game.objectPos[2 + game.config.portal_count];
@@ -26,8 +25,8 @@ game_t initGame() {
     game.clock.start = 0;
     game.clock.game = 0;
 
-    game.area = (SDL_Rect) {PADDING, 30 + PADDING, (game.config.width / 32 - 2) * 32,
-                            ((game.config.height - 30) / 32 - 2) * 32};
+    game.area = (SDL_Rect) {1.25 * OBJECT_SIZE, 2.25 * OBJECT_SIZE, game.config.width * OBJECT_SIZE,
+                            game.config.height * OBJECT_SIZE};
     game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
     for (int i = 0; i < game.config.portal_count; i++) {
         game.object[i].pos = &game.objectPos[i];

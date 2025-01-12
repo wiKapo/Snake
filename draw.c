@@ -1,7 +1,6 @@
 #include "draw.h"
 
 #define ANIMATION_TIME      250 //milliseconds
-#define CHAR_SIZE           8   //pixels
 
 void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score) {
     DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 4 * CHAR_SIZE}, 1);
@@ -275,7 +274,7 @@ void DrawSnake(
         const int length
 ) {
     SDL_Rect source, destination;
-    source.w = source.h = destination.w = destination.h = 32;
+    source.w = source.h = destination.w = destination.h = OBJECT_SIZE;
 
     for (int i = 0; i < length; i++) {
         part_t snakePart = GetDirection(
@@ -290,12 +289,12 @@ void DrawSnake(
             case BODY:
             default:
                 if (snakePart.direction >= RIGHT && snakePart.direction <= UP)
-                    source.y = i % 2 ? 32 : 64;
+                    source.y = i % 2 ? OBJECT_SIZE : 2 * OBJECT_SIZE;
                 else
-                    source.y = i % 2 ? 160 : 192;
+                    source.y = i % 2 ? 5 * OBJECT_SIZE : 6 * OBJECT_SIZE;
                 break;
             case TAIL:
-                source.y = i % 2 ? 96 : 128;
+                source.y = i % 2 ? 3 * OBJECT_SIZE : 4 * OBJECT_SIZE;
         }
 
         switch (snakePart.direction) {
@@ -305,24 +304,24 @@ void DrawSnake(
                 break;
             case DOWN:
             case LEFTDOWN:
-                source.x = 32;
+                source.x = OBJECT_SIZE;
                 break;
             case LEFT:
             case RIGHTDOWN:
-                source.x = 64;
+                source.x = 2 * OBJECT_SIZE;
                 break;
             case UP:
             case RIGHTUP:
-                source.x = 96;
+                source.x = 3 * OBJECT_SIZE;
                 break;
             case NONE:
             default:
-                source.x = 224;
-                source.y = 224;
+                source.x = 7 * OBJECT_SIZE;
+                source.y = 7 * OBJECT_SIZE;
                 break;
         }
-        destination.x = pos[i].x * 32 + gameArea.x;
-        destination.y = pos[i].y * 32 + gameArea.y;
+        destination.x = pos[i].x * OBJECT_SIZE + gameArea.x;
+        destination.y = pos[i].y * OBJECT_SIZE + gameArea.y;
         SDL_BlitSurface(objects, &source, screen, &destination);
     }
 }
@@ -336,22 +335,22 @@ void DrawObjects(
         int type
 ) {
     SDL_Rect source, destination;
-    source.w = source.h = destination.w = destination.h = 32;
+    source.w = source.h = destination.w = destination.h = OBJECT_SIZE;
 
     for (int i = 0; i < length; i++) {
         if (pos[i].x == NULL_POS) break;
         if (i == APPLE) {
-            source.x = 192;
-            source.y = type * 32;
+            source.x = 6 * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE;
         } else if (i == ORANGE) {
-            source.x = 224;
-            source.y = type * 32;
+            source.x = 7 * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE;
         } else {
-            source.x = 160;
+            source.x = 5 * OBJECT_SIZE;
             source.y = 0;
         }
-        destination.x = pos[i].x * 32 + gameArea.x;
-        destination.y = pos[i].y * 32 + gameArea.y;
+        destination.x = pos[i].x * OBJECT_SIZE + gameArea.x;
+        destination.y = pos[i].y * OBJECT_SIZE + gameArea.y;
         SDL_BlitSurface(objects, &source, screen, &destination);
     };
 };
