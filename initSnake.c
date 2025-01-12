@@ -2,7 +2,7 @@
 #include "file.h"
 
 #define CONFIG_PATH     "../config.txt" //with cmake '../' is required
-#define PADDING         40
+#define PADDING         40  //pixels
 
 void initSDL(game_t *game);
 

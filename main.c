@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-#define BLINK_TIME 800
+#define BLINK_TIME 800  //milliseconds
 
 void HandleNewScore(SDL_Surface *screen, game_t *game) {
     switch (game->inputState) {

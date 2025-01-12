@@ -1,7 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#define DEBUG           1 //0 - false; 1 - true
+#define DEBUG           1   //0 - false; 1 - true
 #define NULL_POS        (-99)
 
 typedef struct {

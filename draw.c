@@ -1,7 +1,7 @@
 #include "draw.h"
 
-#define ANIMATION_TIME      250
-#define CHAR_SIZE           8
+#define ANIMATION_TIME      250 //milliseconds
+#define CHAR_SIZE           8   //pixels
 
 void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, state_et state, int score) {
     DrawBox(screen, charset, (SDL_Rect) {0, 0, screen->w, 30}, 1);
@@ -367,7 +367,7 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
         DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
 }
 
-#define SCORES_OFFSET 12
+#define SCORES_OFFSET 12    //number of rows
 
 void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores) {
     int baseY = screen->h / 3 + SCORES_OFFSET * CHAR_SIZE;
