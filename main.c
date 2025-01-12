@@ -4,8 +4,11 @@
 #include "draw.h"
 #include "colors.h"
 
+void HandleNewScore(SDL_Surface *screen, game_t *game);
+
 int main(int argc, char *argv[]) {
     game_t game = initGame();
+
     //There has to be a better way to do this      V               V              V               V                     V...
     uint32_t tickPrevious = 0, tickCurrent = 0, frameTime = 0, gameTime = 0, pauseTime = 0, accelerationTime = 0, animationTime = 0;
     int delta = 0;
@@ -29,9 +32,14 @@ int main(int argc, char *argv[]) {
                     game.snake.pos->x, game.snake.pos->y, game.config.start_speed / (float) game.snake.speed,
                     game.snake.speed, game.snake.length);
             DrawString(screen, game.charset, 10, 32, text);
+
             sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.area.w / 32, game.area.h / 32,
                     game.config.width, game.config.height);
             DrawString(screen, game.charset, 10, 40, text);
+
+            sprintf(text, "INPUT STATE %s", GetInputStateKey(game.inputState));
+            DrawString(screen, game.charset, 10, 48, text);
+
             sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
             DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text, YELLOW);
 
@@ -58,6 +66,7 @@ int main(int argc, char *argv[]) {
             case NEW_GAME:
                 DrawGame(screen, game, &animationTime);
                 frameTime = tickPrevious = gameTime = pauseTime = accelerationTime = animationTime = 0;
+                game.inputState = NORMAL;
                 break;
             case PLAY:
                 tickCurrent = SDL_GetTicks() - game.startTime - pauseTime;
@@ -113,14 +122,15 @@ int main(int argc, char *argv[]) {
                 break;
             case GAME_OVER:
                 DrawGame(screen, game, &animationTime);
-                DrawGameOver(screen, game.charset, game.score, game.deltaTime);
+                HandleNewScore(screen, &game);
                 break;
             case WIN:
                 DrawGame(screen, game, &animationTime);
-                DrawWin(screen, game.charset, game.score, game.deltaTime);
+                HandleNewScore(screen, &game);
                 break;
             case LOAD:
                 DrawGame(screen, game, &animationTime);
+                game.inputState = NORMAL;
                 if (game.orangeTimer > 0)
                     DrawProgressBar(
                             screen, game.charset,
@@ -156,4 +166,40 @@ int main(int argc, char *argv[]) {
     }
     SDL_Quit();
     return 0;
+}
+
+void HandleNewScore(SDL_Surface *screen, game_t *game) {
+    switch (game->inputState) {
+        case NORMAL:
+            if (game->score < game->highScores[2].score) {
+                game->inputState = DONE;
+                break;
+            }
+            sprintf(game->highScores[3].name, "");
+            game->inputState = TEXT;
+
+        case TEXT:
+            const char *key = HandleKeyboard(&game->state);
+            char *name = game->highScores[3].name;
+
+            DrawInput(screen, game->charset, name);
+            if (HandleScoreInput(key, name)) {
+                if (strlen(name) == 3) {
+                    game->highScores[3].score = game->score;
+                    UpdateScores(game->highScores);
+                }
+                game->inputState = DONE;
+            }
+            break;
+        case DONE:
+            if (game->state == GAME_OVER)
+                DrawGameOver(screen, game->charset, game->score, game->deltaTime);
+            else if (game->state == WIN)
+                DrawWin(screen, game->charset, game->score, game->deltaTime);
+            else
+                DrawString(screen, game->charset, game->area.w / 2 - 15 * 8, game->area.h / 2,
+                           "HUH?! This should be impossible");
+            DrawScores(screen, game->charset, game->highScores);
+            break;
+    }
 }

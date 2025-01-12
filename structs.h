@@ -74,22 +74,39 @@ typedef enum {
     PORTAL = 2,
 } object_type_et;
 
+typedef struct {
+    char *name;
+    int score;
+} score_t;
+
+typedef enum {
+    NORMAL = 0,
+    TEXT = 1,
+    DONE = 2,
+} input_et;
 
 typedef struct {
     config_t config;
     SDL_Renderer *renderer;
     SDL_Window *window;
+
     SDL_Surface *charset;
     SDL_Surface *objectMap;
+
     SDL_Rect area;
     point_t *objectPos;
-    state_et state;
     snake_t snake;
     object_t *object;
+
+    state_et state;
+    input_et inputState;
+
     uint32_t startTime;
     uint32_t deltaTime;
     int orangeTimer;
+
     int score;
+    score_t *highScores;
 } game_t;
 
 #endif

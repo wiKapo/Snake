@@ -13,7 +13,7 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     sprintf(text, "Score: %05d", score);
     DrawString(screen, charset, 30, 10, text);
 
-    sprintf(text, "1234ABCDefGhI");
+    sprintf(text, "1234ABCDeFGhI");
     DrawColorString(screen, charset, 128, 10, text, DARK_GRAY);
 
     if (state == PLAY)
@@ -83,8 +83,7 @@ void DrawHelp(SDL_Surface *screen, SDL_Surface *charset) {
 
     sprintf(text, "New game        [n] ");
     DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 5.5 * CHAR_SIZE,
-                    text,
-                    LIGHT_GREEN);
+                    text, LIGHT_GREEN);
     sprintf(text, "Move up         [\030] ");
     DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 4 + 7.5 * CHAR_SIZE, text);
     sprintf(text, "Move down       [\031] ");
@@ -140,21 +139,21 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
                         screen, &(SDL_Rect) {x + w - CHAR_SIZE, i, CHAR_SIZE, CHAR_SIZE});
     }
 
-    SDL_BlitSurface(charset, &(SDL_Rect)
+    SDL_BlitSurface(charset, &(SDL_Rect) //TOP RIGHT
                             {(border[1] % 16) * CHAR_SIZE, (border[1] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
-                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y, CHAR_SIZE, CHAR_SIZE});              //TOP RIGHT
+                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y, CHAR_SIZE, CHAR_SIZE});
 
-    SDL_BlitSurface(charset, &(SDL_Rect)
+    SDL_BlitSurface(charset, &(SDL_Rect) //BOTTOM LEFT
                             {(border[2] % 16) * CHAR_SIZE, (border[2] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
-                    screen, &(SDL_Rect) {x, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});              //BOTTOM LEFT
+                    screen, &(SDL_Rect) {x, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});
 
-    SDL_BlitSurface(charset, &(SDL_Rect)
+    SDL_BlitSurface(charset, &(SDL_Rect) //BOTTOM RIGHT
                             {(border[4] % 16) * CHAR_SIZE, (border[4] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
-                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});   //BOTTOM RIGHT
+                    screen, &(SDL_Rect) {x + w - CHAR_SIZE, y + h - CHAR_SIZE, CHAR_SIZE, CHAR_SIZE});
 
-    SDL_BlitSurface(charset, &(SDL_Rect)
+    SDL_BlitSurface(charset, &(SDL_Rect) // TOP LEFT
                             {(border[5] % 16) * CHAR_SIZE, (border[5] / 16) * CHAR_SIZE, CHAR_SIZE, CHAR_SIZE},
-                    screen, &(SDL_Rect) {x, y, CHAR_SIZE, CHAR_SIZE});                          // TOP LEFT
+                    screen, &(SDL_Rect) {x, y, CHAR_SIZE, CHAR_SIZE});
 }
 
 void DrawProgressBar(
@@ -231,7 +230,7 @@ part_t GetDirection(const point_t last, const point_t curr, const point_t next) 
     else if (next.x == NULL_POS)
         snakePart.type = TAIL;
 
-    // Vertical movement
+    //     Vertical movement
     if (last.x == curr.x && curr.x == next.x || (last.x == NULL_POS && curr.x == next.x) ||
         (last.x == curr.x && next.x == NULL_POS)) {
         if ((last.y > curr.y && last.x != NULL_POS) || (next.y != NULL_POS && curr.y > next.y))
@@ -323,8 +322,7 @@ void DrawSnake(
         }
         destination.x = pos[i].x * 32 + gameArea.x;
         destination.y = pos[i].y * 32 + gameArea.y;
-        SDL_BlitSurface(objects,
-                        &source, screen, &destination);
+        SDL_BlitSurface(objects, &source, screen, &destination);
     }
 }
 
@@ -364,4 +362,53 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
     else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
         DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1);
     else *time -= ANIMATION_TIME;
+}
+
+#define SCORES_OFFSET 12
+
+void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores) {
+    int baseY = screen->h / 3 + SCORES_OFFSET * CHAR_SIZE;
+    DrawBox(screen, charset, (SDL_Rect)
+            {screen->w / 2 - 7.5 * CHAR_SIZE, baseY, 15 * CHAR_SIZE, 11 * CHAR_SIZE}, 0);
+
+    char text[100];
+    sprintf(text, "High Scores");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2,
+                    baseY + 2 * CHAR_SIZE, text, YELLOW);
+
+    for (int i = 0; i < 3; i++) {
+        sprintf(text, "%s", scores[i].name);
+        DrawString(screen, charset, screen->w / 2 - 5 * CHAR_SIZE,
+                   baseY + 4.5 * CHAR_SIZE + i * (1.5 * CHAR_SIZE), text);
+
+        sprintf(text, "%d", scores[i].score);
+        DrawString(screen, charset, screen->w / 2 + 5 * CHAR_SIZE - strlen(text) * CHAR_SIZE,
+                   baseY + 4.5 * CHAR_SIZE + i * (1.5 * CHAR_SIZE), text);
+    }
+}
+
+void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name) {
+    char text[100];
+    sprintf(text, "Enter your name:");
+    DrawBox(screen, charset, (SDL_Rect)
+            {screen->w / 2 - ((strlen(text) + 14) * CHAR_SIZE) / 2, screen->h / 2 - 2 * CHAR_SIZE,
+             (strlen(text) + 14) * CHAR_SIZE, 8 * CHAR_SIZE}, 0);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 - 1 * CHAR_SIZE, text);
+
+    sprintf(text, "     ");
+    text[0] = strlen(name) > 0 ? name[0] : '_';
+    text[2] = strlen(name) > 1 ? name[1] : '_';
+    text[4] = strlen(name) > 2 ? name[2] : '_';
+    DrawString(screen, charset, screen->w / 2 - (strlen(text) * CHAR_SIZE) / 2, screen->h / 2 + CHAR_SIZE, text);
+
+    sprintf(text, "             Confirm [Enter]");
+    if (strlen(name) < 3)
+        DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 + 4 * CHAR_SIZE,
+                        text, GRAY);
+    else
+        DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 + 4 * CHAR_SIZE,
+                        text, LIGHT_GREEN);
+    sprintf(text, "Cancel [Esc]                ");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 + 4 * CHAR_SIZE,
+                    text, LIGHT_RED);
 }

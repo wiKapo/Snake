@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "structs.h"
 #include "colors.h"
+#include "file.h"
 
 #ifndef SNAKEWKP_DRAW_H
 #define SNAKEWKP_DRAW_H
@@ -49,8 +50,18 @@ void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint
 
 void DrawSnake(SDL_Surface *screen, SDL_Surface *objects, SDL_Rect gameArea, const point_t *pos, int length);
 
-void DrawObjects(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect gameArea, const point_t *pos, int length, int type);
+void DrawObjects(
+        SDL_Surface *screen,
+        SDL_Surface *charset,
+        SDL_Rect gameArea,
+        const point_t *pos,
+        int length,
+        int type);
 
 void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time);
+
+void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores);
+
+void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name);
 
 #endif //SNAKEWKP_DRAW_H

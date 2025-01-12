@@ -9,6 +9,8 @@ void QuickLoad(game_t *game);
 void InitPlay(game_t *game);
 
 void HandleInput(game_t *game) {
+    if (game->inputState == TEXT) return;
+
     SDL_Event event;
     snake_t *snake = &game->snake;
 
@@ -174,6 +176,44 @@ void HandleMovement(snake_t *snake, SDL_Rect gameBoard) {
     snake->change_direction = 0;
 }
 
+const char *HandleKeyboard(state_et *state) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                *state = QUIT;
+                return "";
+            case SDL_KEYDOWN:
+                const char *key = SDL_GetKeyName(event.key.keysym.sym);
+                int keycode = SDL_GetKeyFromName(key);
+                if (keycode >= 'a' && keycode <= 'z' || keycode >= '0' && keycode <= '9' || keycode == SDLK_ESCAPE ||
+                    keycode == SDLK_BACKSPACE || keycode == SDLK_RETURN)
+                    return key;
+                return "";
+        }
+    }
+    return "";
+};
+
+int HandleScoreInput(const char *key, char name[3 + 1]) {
+    int length = strlen(name);
+    if (!strcmp(key, "Backspace")) {
+        if (length > 0)
+            name[length - 1] = '\0';
+    } else if (!strcmp(key, "Return") && length == 3)
+        return 1;
+    else if (!strcmp(key, "Escape")) {
+        name[0] = '\0';
+        return 1;
+    } else if (length < 3 && strlen(key) && strcmp(key, "Return") != 0) {
+        SDL_LogInfo(0, "Adding new letter");
+        strcat(name, key);
+//        name[length] = *key;
+    }
+    if (strcmp(key, "")) SDL_LogInfo(0, "PRESSED: %s {%c} NAME: %s", key, *key, name);
+    return 0;
+}
+
 int CheckSelfCollision(snake_t *snake) {
     for (int i = 1; i < snake->length; i++) {
         if (snake->pos[0].x == snake->pos[i].x && snake->pos[0].y == snake->pos[i].y) {
@@ -310,5 +350,16 @@ char *GetStateKey(state_et state) {
             return "LOAD";
         default:
             return "UNKNOWN_STATE";
+    }
+}
+
+char *GetInputStateKey(input_et state) {
+    switch (state) {
+        case NORMAL:
+            return "NORMAL";
+        case TEXT:
+            return "TEXT";
+        case DONE:
+            return "DONE";
     }
 }
