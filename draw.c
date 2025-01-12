@@ -13,7 +13,7 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     DrawString(screen, charset, 30, 1.5 * CHAR_SIZE, text);
 
     sprintf(text, "1234ABCDeFGhI");
-    DrawColorString(screen, charset, 128, 1.5 * CHAR_SIZE, text, DARK_GRAY);
+    DrawColorString(screen, charset, screen->w / 4 - 2.25 * CHAR_SIZE, 1.5 * CHAR_SIZE, text, DARK_GRAY);
 
     if (state == PLAY)
         DrawTime(screen, charset, screen->w - 100, 1.5 * CHAR_SIZE, deltaTime);
