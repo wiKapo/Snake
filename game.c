@@ -239,7 +239,7 @@ void CheckFruitCollision(game_t *game) {
     } else if (snake->pos[0].x == game->object[ORANGE].pos->x && snake->pos[0].y == game->object[ORANGE].pos->y) {
         RemoveObject(game, ORANGE);
         game->score += game->config.orange_value;
-        game->orangeTimer = -game->config.orange_delay;
+        game->clock.orange = -game->config.orange_delay;
         if (rand() % 100 < 50) {
             if (snake->length - game->config.bonus_shorten < game->config.start_length) {
                 for (int i = game->config.start_length; i < snake->length; i++)
@@ -256,10 +256,8 @@ void CheckFruitCollision(game_t *game) {
 
 void NewGame(game_t *game) {
     game->state = NEW_GAME;
-    game->startTime = 0;
-    game->deltaTime = 0;
     game->score = 0;
-    game->orangeTimer = -game->config.orange_delay;
+
     game->snake.direction = UP;
     game->snake.speed = game->config.start_speed;
     game->snake.change_direction = 0;
@@ -272,6 +270,10 @@ void NewGame(game_t *game) {
         game->snake.pos[i] = (point_t) {
                 (game->area.w / 32 / 2) % 2 == 0 ? game->area.w / 32 / 2 - 1 : game->area.w / 32 / 2,
                 game->area.h / 32 / 2 + i};
+
+    game->clock.start = 0;
+    game->clock.game = 0;
+    game->clock.orange = -game->config.orange_delay;
 
     PlaceObject(game, APPLE);
     RemoveObject(game, ORANGE);
@@ -286,7 +288,7 @@ void QuickLoad(game_t *game) {
 
 void InitPlay(game_t *game) {
     game->state = PLAY;
-    game->startTime = SDL_GetTicks();
+    game->clock.start = SDL_GetTicks();
 }
 
 int CheckPosition(point_t *pos, int length, point_t newPos) {

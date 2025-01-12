@@ -86,6 +86,16 @@ typedef enum {
 } input_et;
 
 typedef struct {
+    uint32_t start;
+    uint32_t game;
+    uint32_t delta;
+    uint32_t animation;
+    uint32_t acceleration;
+    uint32_t move;
+    int orange;
+} clock_t;
+
+typedef struct {
     config_t config;
     SDL_Renderer *renderer;
     SDL_Window *window;
@@ -101,9 +111,7 @@ typedef struct {
     state_et state;
     input_et inputState;
 
-    uint32_t startTime;
-    uint32_t deltaTime;
-    int orangeTimer;
+    clock_t clock;
 
     int score;
     score_t *highScores;

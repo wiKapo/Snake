@@ -22,8 +22,10 @@ game_t initGame() {
     game.snake.speed = game.config.start_speed;
     game.snake.change_direction = 0;
 
-    game.orangeTimer = -game.config.orange_delay;
-    game.startTime = 0;
+    game.clock.orange = -game.config.orange_delay;
+    game.clock.start = 0;
+    game.clock.game = 0;
+
     game.area = (SDL_Rect) {PADDING, 30 + PADDING, (game.config.width / 32 - 2) * 32,
                             ((game.config.height - 30) / 32 - 2) * 32};
     game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));

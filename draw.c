@@ -357,11 +357,14 @@ void DrawObjects(
 
 void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
     DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
-    if (*time < ANIMATION_TIME / 2)
+    if (game.state != GAME_OVER && game.state != WIN)
+        if (*time < ANIMATION_TIME / 2)
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
+        else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1);
+        else *time -= ANIMATION_TIME;
+    else
         DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
-    else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
-        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1);
-    else *time -= ANIMATION_TIME;
 }
 
 #define SCORES_OFFSET 12
@@ -387,7 +390,7 @@ void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores) {
     }
 }
 
-void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name) {
+void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name, int blink) {
     char text[100];
     sprintf(text, "Enter your name:");
     DrawBox(screen, charset, (SDL_Rect)
@@ -396,9 +399,9 @@ void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name) {
     DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 - 1 * CHAR_SIZE, text);
 
     sprintf(text, "     ");
-    text[0] = strlen(name) > 0 ? name[0] : '_';
-    text[2] = strlen(name) > 1 ? name[1] : '_';
-    text[4] = strlen(name) > 2 ? name[2] : '_';
+    text[0] = strlen(name) > 0 ? name[0] : blink ? ' ' : '_';
+    text[2] = strlen(name) > 1 ? name[1] : blink && strlen(name) ? ' ' : '_';
+    text[4] = strlen(name) > 2 ? name[2] : blink && strlen(name) == 2 ? ' ' : '_';
     DrawString(screen, charset, screen->w / 2 - (strlen(text) * CHAR_SIZE) / 2, screen->h / 2 + CHAR_SIZE, text);
 
     sprintf(text, "             Confirm [Enter]");

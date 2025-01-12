@@ -62,6 +62,6 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time);
 
 void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores);
 
-void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name);
+void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name, int blink);
 
 #endif //SNAKEWKP_DRAW_H
