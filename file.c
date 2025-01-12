@@ -76,9 +76,9 @@ config_t GetConfig(char *path) {
     while (!feof(file)) {
         char name[100];
         fscanf(file, "%s", name);
-        if (!strcmp(name, "WINDOW_WIDTH"))
+        if (!strcmp(name, "BOARD_WIDTH"))
             fscanf(file, "%d", &config.width);
-        else if (!strcmp(name, "WINDOW_HEIGHT"))
+        else if (!strcmp(name, "BOARD_HEIGHT"))
             fscanf(file, "%d", &config.height);
         else if (!strcmp(name, "START_SPEED"))
             fscanf(file, "%d", &config.start_speed);

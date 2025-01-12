@@ -300,10 +300,10 @@ int CheckPosition(point_t *pos, int length, point_t newPos) {
 }
 
 void DoPlace(game_t *game, int object) {
-    point_t newPos = (point_t) {rand() % game->area.w / 32, rand() % game->area.h / 32};
+    point_t newPos = (point_t) {rand() % game->config.width, rand() % game->config.height};
     while (CheckPosition(game->objectPos, game->snake.length + game->config.portal_count + 2, newPos)) {
-        newPos = newPos.x < game->area.w / 32 - 1 ? (point_t) {++newPos.x, newPos.y} :
-                 newPos.y < game->area.h / 32 - 1 ? (point_t) {0, ++newPos.y} : (point_t) {0, 0};
+        newPos = newPos.x < game->config.width - 1 ? (point_t) {++newPos.x, newPos.y} :
+                 newPos.y < game->config.height - 1 ? (point_t) {0, ++newPos.y} : (point_t) {0, 0};
     }
 
     *game->object[object].pos = newPos;

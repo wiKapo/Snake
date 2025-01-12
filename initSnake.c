@@ -25,7 +25,7 @@ game_t initGame() {
     game.clock.start = 0;
     game.clock.game = 0;
 
-    game.area = (SDL_Rect) {1.25 * OBJECT_SIZE, 2.25 * OBJECT_SIZE, game.config.width * OBJECT_SIZE,
+    game.area = (SDL_Rect) {1.5 * OBJECT_SIZE, 2.25 * OBJECT_SIZE, game.config.width * OBJECT_SIZE,
                             game.config.height * OBJECT_SIZE};
     game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
     for (int i = 0; i < game.config.portal_count; i++) {
@@ -52,8 +52,14 @@ void initSDL(game_t *game) {
         exit(1);
     }
 
+    int width = 600, height = 600;
+    if (config.width * OBJECT_SIZE > 600)
+        width = config.width * OBJECT_SIZE + 3 * OBJECT_SIZE;
+    if (config.height * OBJECT_SIZE + 40 > 600)
+        height = config.height * OBJECT_SIZE + 3 * OBJECT_SIZE + 18;
+
     game->window = SDL_CreateWindow("Snake wiKapo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                    config.width, config.height, SDL_WINDOW_SHOWN);
+                                    width, height, SDL_WINDOW_SHOWN);
 
     if (!game->window) {
         SDL_LogError(0, "Failed to open %d x %d window: %s\n", config.width, config.height,

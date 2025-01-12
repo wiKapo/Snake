@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
                     HandleMovement(&game.snake, game.area);
 
                     CheckFruitCollision(&game);
-                    if (game.snake.length == game.area.w / 32 * game.area.h / 32) game.state = WIN;
+                    if (game.snake.length == game.config.width * game.config.height) game.state = WIN;
                     else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
                         game.state = GAME_OVER;
                 }
@@ -173,7 +173,7 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
             game.snake.speed, game.snake.length);
     DrawString(screen, game.charset, 10, 4.5 * CHAR_SIZE, text);
 
-    sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.area.w / 32, game.area.h / 32,
+    sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.config.width, game.config.height,
             screen->w, screen->h);
     DrawString(screen, game.charset, 10, 5.5 * CHAR_SIZE, text);
 
