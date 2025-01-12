@@ -4,6 +4,8 @@
 #include "draw.h"
 #include "colors.h"
 
+void DrawDebug(SDL_Surface *screen, game_t game);
+
 void HandleNewScore(SDL_Surface *screen, game_t *game);
 
 int main(int argc, char *argv[]) {
@@ -202,4 +204,39 @@ void HandleNewScore(SDL_Surface *screen, game_t *game) {
             DrawScores(screen, game->charset, game->highScores);
             break;
     }
+}
+
+void DrawDebug(SDL_Surface *screen, game_t game) {
+    char text[100];
+    //TOP DEBUG
+    sprintf(text, "SNAKE: HEAD %02dx%02d SPEED %f MOVE TIME %d LENGTH %d",
+            game.snake.pos->x, game.snake.pos->y, game.config.start_speed / (float) game.snake.speed,
+            game.snake.speed, game.snake.length);
+    DrawString(screen, game.charset, 10, 32, text);
+
+    sprintf(text, "GAME AREA %02dx%02d WINDOW SIZE %dx%d", game.area.w / 32, game.area.h / 32,
+            game.config.width, game.config.height);
+    DrawString(screen, game.charset, 10, 40, text);
+
+    sprintf(text, "INPUT STATE %s", GetInputStateKey(game.inputState));
+    DrawString(screen, game.charset, 10, 48, text);
+
+    sprintf(text, "GAME STATE: %s", GetStateKey(game.state));
+    DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * 8, 48, text, YELLOW);
+
+    //BOTTOM DEBUG
+    sprintf(text, "GAME %u DELTA %u ANIMATION %u", game.clock.game, game.clock.delta, game.clock.animation);
+    DrawString(screen, game.charset, 10, screen->h - 24, text);
+
+    if (game.clock.orange > 0)
+        sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d ORANGE PROGRESS %.2f",
+                game.clock.orange, game.config.orange_chance,
+                game.clock.orange / (float) game.config.orange_delay);
+    else sprintf(text, "ORANGE TIMER %d ORANGE CHANCE %d", game.clock.orange, game.config.orange_chance);
+    DrawString(screen, game.charset, 10, screen->h - 16, text);
+
+    sprintf(text, "APPLE POS %02dx%02d ORANGE POS %02dx%02d",
+            game.objectPos[APPLE].x, game.objectPos[APPLE].y,
+            game.objectPos[ORANGE].x, game.objectPos[ORANGE].y);
+    DrawString(screen, game.charset, 10, screen->h - 8, text);
 }
