@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
                 game.inputState = NORMAL;
                 break;
             case PLAY:
-                UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.state);
+                UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.inputState);
 
                 if (game.clock.orange < 0) {
                     game.clock.orange += delta;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
                 break;
             case GAME_OVER:
             case WIN:
-                UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.state);
+                UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.inputState);
                 DrawGame(screen, game, &game.clock.animation);
                 HandleNewScore(screen, &game);
                 break;

@@ -1,17 +1,18 @@
 #include "time.h"
 
-void UpdateTime(clock_t *clock, int *delta, uint32_t *tickLast, uint32_t pauseTime, state_et state) {
+void UpdateTime(clock_t *clock, int *delta, uint32_t *tickLast, uint32_t pauseTime, input_et inputState) {
     uint32_t tickCurrent = SDL_GetTicks() - clock->start - pauseTime;
     *delta = tickCurrent - *tickLast;
     *tickLast = tickCurrent;
 
-    if (state == PLAY) {
+    if (inputState == NORMAL) {
         clock->delta += *delta;
 
         clock->move += *delta;
         clock->acceleration += *delta;
     }
-    clock->animation += *delta;
+    if (inputState != DONE)
+        clock->animation += *delta;
 }
 
 void ResetTime(clock_t *clock) {
