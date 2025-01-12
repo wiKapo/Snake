@@ -51,10 +51,8 @@ int main(int argc, char *argv[]) {
                             game.clock.orange = game.config.orange_delay;
                         } else game.clock.orange = -game.config.orange_delay / 2;
                 } else if (game.clock.orange > 0) {
-                    DrawProgressBar(
-                            screen, game.charset,
-                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
-                            game.clock.orange, game.config.orange_delay, ORANGE_COLOR);
+                    DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
+                                    game.config.orange_delay, ORANGE_COLOR);
                     game.clock.orange -= delta;
                     if (game.clock.orange == 0) {
                         RemoveObject(&game, ORANGE);
@@ -94,27 +92,21 @@ int main(int argc, char *argv[]) {
                 DrawGame(screen, game, &game.clock.animation);
                 game.inputState = NORMAL;
                 if (game.clock.orange > 0)
-                    DrawProgressBar(
-                            screen, game.charset,
-                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
-                            game.clock.orange, game.config.orange_delay, ORANGE_COLOR);
+                    DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
+                                    game.config.orange_delay, ORANGE_COLOR);
                 break;
             case PAUSE:
                 DrawGame(screen, game, &game.clock.animation);
                 if (game.clock.orange > 0)
-                    DrawProgressBar(
-                            screen, game.charset,
-                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
-                            game.clock.orange, game.config.orange_delay, ORANGE_COLOR);
+                    DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
+                                    game.config.orange_delay, ORANGE_COLOR);
                 pauseTime = SDL_GetTicks() - game.clock.start - game.clock.delta;
                 break;
             case PAUSE_INFO:
                 DrawGame(screen, game, &game.clock.animation);
                 if (game.clock.orange > 0)
-                    DrawProgressBar(
-                            screen, game.charset,
-                            (SDL_Rect) {game.area.x - 8, game.area.y - 16, game.area.w + 16, 8},
-                            game.clock.orange, game.config.orange_delay, ORANGE_COLOR);
+                    DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
+                                    game.config.orange_delay, ORANGE_COLOR);
                 pauseTime = SDL_GetTicks() - game.clock.start - game.clock.delta;
                 DrawHelp(screen, game.charset);
                 break;

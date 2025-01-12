@@ -33,7 +33,7 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
 void DrawProgressBar(
         SDL_Surface *screen,
         SDL_Surface *charset,
-        SDL_Rect rect,
+        SDL_Rect gameArea,
         int value,
         int maxValue,
         SDL_Color color);

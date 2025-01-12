@@ -159,11 +159,12 @@ void DrawColorBox(SDL_Surface *screen, SDL_Surface *charset, SDL_Rect rect, int 
 void DrawProgressBar(
         SDL_Surface *screen,
         SDL_Surface *charset,
-        SDL_Rect rect,
+        SDL_Rect gameArea,
         int value,
         int maxValue,
         SDL_Color color
 ) {
+    SDL_Rect rect = {gameArea.x - CHAR_SIZE, gameArea.y - 2 * CHAR_SIZE, gameArea.w + 2 * CHAR_SIZE, CHAR_SIZE};
     SDL_Rect source, destination;
     source.w = source.h = destination.w = destination.h = CHAR_SIZE;
     source.x = 0;
