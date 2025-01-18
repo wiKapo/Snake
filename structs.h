@@ -1,13 +1,20 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#define DEBUG           1   //0 - false; 1 - true
-#define NULL_POS        (-99)
-#define OBJECT_SIZE     32  //pixels
-#define CHAR_SIZE       8   //pixels
+#define DEBUG                       1   //0 - false; 1 - true
+#define NULL_POS                    (-99)
+#define OBJECT_SIZE                 32  //pixels
+#define CHAR_SIZE                   8   //pixels
+#define MAX_SMALL_BOARD_POS         15
+#define MAX_SMALL_BOARD_WIDTH       (MAX_SMALL_BOARD_POS * OBJECT_SIZE) //pixels
+#define MAX_SMALL_BOARD_HEIGHT      (MAX_SMALL_BOARD_POS / 2 * OBJECT_SIZE) //pixels
+#define MIN_WINDOW_WIDTH            (MAX_SMALL_BOARD_WIDTH + 3 * OBJECT_SIZE) //pixels
+#define MIN_WINDOW_HEIGHT           (MAX_SMALL_BOARD_HEIGHT + 3 * OBJECT_SIZE + 2 * CHAR_SIZE) //pixels
 
 typedef struct {
+    //game board width
     int width;
+    //game board height
     int height;
 
     int start_speed;

@@ -1,6 +1,8 @@
 #include "file.h"
 
 #define SCORES_PATH     "../scores.txt"
+#define MIN_BOARD_WIDTH     3 //positions
+#define MIN_BOARD_HEIGHT    3 //positions
 
 void MoveScore(score_t *scoreDest, score_t *scoreSrc) {
     strcpy(scoreDest->name, scoreSrc->name);
@@ -108,6 +110,9 @@ config_t GetConfig(char *path) {
             fscanf(file, "%d", &config.portal_count);
     }
     fclose(file);
+
+    config.width = config.width < MIN_BOARD_WIDTH ? MIN_BOARD_WIDTH : config.width;
+    config.height = config.height < MIN_BOARD_HEIGHT ? MIN_BOARD_HEIGHT : config.height;
 
     config.acceleration = 1 - config.acceleration;
     config.bonus_slow_down = 1 + config.bonus_slow_down;

@@ -10,12 +10,12 @@ game_t initGame() {
     game_t game;
     game.config = GetConfig(CONFIG_PATH);
 
-    int objectCount = game.config.width * game.config.height * OBJECT_SIZE;
+    int objectCount = 2 + game.config.portal_count * 2 + game.config.width * game.config.height;
     game.objectPos = malloc(sizeof(point_t) * objectCount);
     for (int i = 0; i < objectCount; i++)
         game.objectPos[i] = (point_t) {NULL_POS, NULL_POS};
 
-    game.snake.pos = &game.objectPos[2 + game.config.portal_count];
+    game.snake.pos = &game.objectPos[2 + game.config.portal_count * 2];
     game.snake.length = game.config.start_length;
     game.snake.direction = UP;
     game.snake.speed = game.config.start_speed;
@@ -24,9 +24,15 @@ game_t initGame() {
     game.clock.orange = -game.config.orange_delay;
     game.clock.start = 0;
     game.clock.game = 0;
+    game.clock.notification = 0;
 
-    game.area = (SDL_Rect) {1.5 * OBJECT_SIZE, 2.25 * OBJECT_SIZE, game.config.width * OBJECT_SIZE,
-                            game.config.height * OBJECT_SIZE};
+    int xPadding = MAX_SMALL_BOARD_POS - game.config.width > 0 ?
+                   (MAX_SMALL_BOARD_POS - game.config.width) * OBJECT_SIZE / 2 : 0;
+    int yPadding = MAX_SMALL_BOARD_POS / 2 - game.config.height > 0 ?
+                   (MAX_SMALL_BOARD_POS / 2 - game.config.height) * OBJECT_SIZE / 2 : 0;
+    game.area = (SDL_Rect) {1.5 * OBJECT_SIZE + xPadding, 1.5 * OBJECT_SIZE + 3 * CHAR_SIZE + yPadding,
+                            game.config.width * OBJECT_SIZE, game.config.height * OBJECT_SIZE};
+
     game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
     for (int i = 0; i < game.config.portal_count; i++) {
         game.object[i].pos = &game.objectPos[i];
@@ -52,18 +58,17 @@ void initSDL(game_t *game) {
         exit(1);
     }
 
-    int width = 600, height = 600;
-    if (config.width * OBJECT_SIZE > 600)
+    int width = MIN_WINDOW_WIDTH, height = MIN_WINDOW_HEIGHT;
+    if (config.width * OBJECT_SIZE > MAX_SMALL_BOARD_WIDTH)
         width = config.width * OBJECT_SIZE + 3 * OBJECT_SIZE;
-    if (config.height * OBJECT_SIZE + 40 > 600)
-        height = config.height * OBJECT_SIZE + 3 * OBJECT_SIZE + 18;
+    if (config.height * OBJECT_SIZE > MAX_SMALL_BOARD_HEIGHT)
+        height = config.height * OBJECT_SIZE + 3 * OBJECT_SIZE + 2 * CHAR_SIZE;
 
     game->window = SDL_CreateWindow("Snake wiKapo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                     width, height, SDL_WINDOW_SHOWN);
 
     if (!game->window) {
-        SDL_LogError(0, "Failed to open %d x %d window: %s\n", config.width, config.height,
-                     SDL_GetError());
+        SDL_LogError(0, "Failed to open %d x %d window: %s\n", config.width, config.height, SDL_GetError());
         exit(1);
     }
 
