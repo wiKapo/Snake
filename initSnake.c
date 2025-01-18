@@ -26,10 +26,10 @@ game_t initGame() {
     game.clock.game = 0;
     game.clock.notification = 0;
 
-    int xPadding = MAX_SMALL_BOARD_POS - game.config.width > 0 ?
-                   (MAX_SMALL_BOARD_POS - game.config.width) * OBJECT_SIZE / 2 : 0;
-    int yPadding = MAX_SMALL_BOARD_POS / 2 - game.config.height > 0 ?
-                   (MAX_SMALL_BOARD_POS / 2 - game.config.height) * OBJECT_SIZE / 2 : 0;
+    int xPadding = MAX_SMALL_BOARD_POS_W - game.config.width > 0 ?
+                   (MAX_SMALL_BOARD_POS_W - game.config.width) * OBJECT_SIZE / 2 : 0;
+    int yPadding = MAX_SMALL_BOARD_POS_H - game.config.height > 0 ?
+                   (MAX_SMALL_BOARD_POS_H - game.config.height) * OBJECT_SIZE / 2 : 0;
     game.area = (SDL_Rect) {1.5 * OBJECT_SIZE + xPadding, 1.5 * OBJECT_SIZE + 3 * CHAR_SIZE + yPadding,
                             game.config.width * OBJECT_SIZE, game.config.height * OBJECT_SIZE};
 

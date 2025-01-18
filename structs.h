@@ -5,9 +5,10 @@
 #define NULL_POS                    (-99)
 #define OBJECT_SIZE                 32  //pixels
 #define CHAR_SIZE                   8   //pixels
-#define MAX_SMALL_BOARD_POS         15
-#define MAX_SMALL_BOARD_WIDTH       (MAX_SMALL_BOARD_POS * OBJECT_SIZE) //pixels
-#define MAX_SMALL_BOARD_HEIGHT      (MAX_SMALL_BOARD_POS / 2 * OBJECT_SIZE) //pixels
+#define MAX_SMALL_BOARD_POS_W       15  //positions
+#define MAX_SMALL_BOARD_POS_H       7   //positions
+#define MAX_SMALL_BOARD_WIDTH       (MAX_SMALL_BOARD_POS_W * OBJECT_SIZE) //pixels
+#define MAX_SMALL_BOARD_HEIGHT      (MAX_SMALL_BOARD_POS_H * OBJECT_SIZE) //pixels
 #define MIN_WINDOW_WIDTH            (MAX_SMALL_BOARD_WIDTH + 3 * OBJECT_SIZE) //pixels
 #define MIN_WINDOW_HEIGHT           (MAX_SMALL_BOARD_HEIGHT + 3 * OBJECT_SIZE + 2 * CHAR_SIZE) //pixels
 
