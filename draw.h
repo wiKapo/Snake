@@ -56,12 +56,20 @@ void DrawObjects(
         SDL_Rect gameArea,
         const point_t *pos,
         int length,
-        int type);
+        int type,
+        int fruitMode);
 
 void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time);
 
 void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores);
 
 void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name, int blink);
+
+void DrawFruitPoints(
+        SDL_Surface *screen,
+        SDL_Surface *charset,
+        SDL_Surface *objects,
+        SDL_Rect gameArea,
+        config_t config);
 
 #endif //SNAKEWKP_DRAW_H

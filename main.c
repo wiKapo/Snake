@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
         } else
             game.clock.notification = 0;
 
+        DrawFruitPoints(screen, game.charset, game.objectMap, game.area, game.config);
+
         if (DEBUG) DrawDebug(screen, game);
 
         HandleInput(&game);

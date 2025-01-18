@@ -10,20 +10,20 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, 1.5 * CHAR_SIZE, text, GREEN);
 
     sprintf(text, "Score: %05d", score);
-    DrawString(screen, charset, 4 * CHAR_SIZE, 1.5 * CHAR_SIZE, text);
+    DrawString(screen, charset, 3 * CHAR_SIZE, 1.5 * CHAR_SIZE, text);
 
     sprintf(text, "1234ABCDEFGhI");
-    DrawColorString(screen, charset, screen->w / 4 - 2.25 * CHAR_SIZE, 1.5 * CHAR_SIZE, text, DARK_GRAY);
+    DrawColorString(screen, charset, screen->w / 4 - 2.5 * CHAR_SIZE, 1.5 * CHAR_SIZE, text, DARK_GRAY);
 
     if (state == PLAY)
-        DrawTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime);
+        DrawTime(screen, charset, screen->w - 12 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime);
     else if (state == PAUSE || state == PAUSE_INFO || state == LOAD) {
-        DrawString(screen, charset, screen->w - (13 + 9) * CHAR_SIZE, 1.5 * CHAR_SIZE, "[PAUSED]");
-        DrawColorTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
+        DrawString(screen, charset, screen->w - (12 + 9) * CHAR_SIZE, 1.5 * CHAR_SIZE, "[PAUSED]");
+        DrawColorTime(screen, charset, screen->w - 12 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
     } else if (state == NEW_GAME)
-        DrawColorTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
+        DrawColorTime(screen, charset, screen->w - 12 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
     else
-        DrawColorString(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, "XX:XX.XXX", GRAY);
+        DrawColorString(screen, charset, screen->w - 12 * CHAR_SIZE, 1.5 * CHAR_SIZE, "XX:XX.XXX", GRAY);
 }
 
 void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
@@ -332,7 +332,8 @@ void DrawObjects(
         const SDL_Rect gameArea,
         const point_t *pos,
         const int length,
-        int type
+        int type,
+        int fruitMode
 ) {
     SDL_Rect source, destination;
     source.w = source.h = destination.w = destination.h = OBJECT_SIZE;
@@ -341,10 +342,10 @@ void DrawObjects(
         if (pos[i].x == NULL_POS) break;
         if (i == APPLE) {
             source.x = 6 * OBJECT_SIZE;
-            source.y = type * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE;
         } else if (i == ORANGE) {
             source.x = 7 * OBJECT_SIZE;
-            source.y = type * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE;
         } else {
             source.x = 5 * OBJECT_SIZE;
             source.y = 0;
@@ -359,12 +360,14 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
     DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
     if (game.state != GAME_OVER && game.state != WIN)
         if (*time < ANIMATION_TIME / 2)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0,
+                        game.config.fruit_mode);
         else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1);
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1,
+                        game.config.fruit_mode);
         else *time -= ANIMATION_TIME;
     else
-        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0);
+        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0, game.config.portal_count);
 }
 
 #define SCORES_OFFSET 12    //number of rows
@@ -414,4 +417,29 @@ void DrawInput(SDL_Surface *screen, SDL_Surface *charset, char *name, int blink)
     sprintf(text, "Cancel [Esc]                ");
     DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 2 + 4 * CHAR_SIZE,
                     text, LIGHT_RED);
+}
+
+void DrawFruitPoints(
+        SDL_Surface *screen,
+        SDL_Surface *charset,
+        SDL_Surface *objects,
+        SDL_Rect gameArea,
+        config_t config
+) {
+    char text[50];
+    int fruitMode = 1;
+    SDL_BlitSurface(objects,
+                    &(SDL_Rect) {6 * OBJECT_SIZE, OBJECT_SIZE + fruitMode * 2 * OBJECT_SIZE, OBJECT_SIZE, OBJECT_SIZE},
+                    screen, &(SDL_Rect)
+                    {screen->w - 8 * OBJECT_SIZE, gameArea.y + gameArea.h + 1 * CHAR_SIZE, OBJECT_SIZE, OBJECT_SIZE});
+    sprintf(text, "=%d pts.", config.apple_value);
+    DrawString(screen, charset, screen->w - 7 * OBJECT_SIZE, gameArea.y + gameArea.h + 2.5 * CHAR_SIZE, text);
+
+    SDL_BlitSurface(objects,
+                    &(SDL_Rect) {7 * OBJECT_SIZE, OBJECT_SIZE + fruitMode * 2 * OBJECT_SIZE, OBJECT_SIZE, OBJECT_SIZE},
+                    screen, &(SDL_Rect)
+                    {screen->w - 4 * OBJECT_SIZE, gameArea.y + gameArea.h + 1 * CHAR_SIZE,
+                     OBJECT_SIZE, OBJECT_SIZE});
+    sprintf(text, "=%d pts.", config.orange_value);
+    DrawString(screen, charset, screen->w - 3 * OBJECT_SIZE, gameArea.y + gameArea.h + 2.5 * CHAR_SIZE, text);
 }
