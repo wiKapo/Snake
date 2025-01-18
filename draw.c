@@ -10,20 +10,20 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, 1.5 * CHAR_SIZE, text, GREEN);
 
     sprintf(text, "Score: %05d", score);
-    DrawString(screen, charset, 30, 1.5 * CHAR_SIZE, text);
+    DrawString(screen, charset, 4 * CHAR_SIZE, 1.5 * CHAR_SIZE, text);
 
     sprintf(text, "1234ABCDeFGhI");
     DrawColorString(screen, charset, screen->w / 4 - 2.25 * CHAR_SIZE, 1.5 * CHAR_SIZE, text, DARK_GRAY);
 
     if (state == PLAY)
-        DrawTime(screen, charset, screen->w - 100, 1.5 * CHAR_SIZE, deltaTime);
-    else if (state == PAUSE || state == PAUSE_INFO) {
-        DrawString(screen, charset, screen->w - 100 - 9 * CHAR_SIZE, 1.5 * CHAR_SIZE, "[PAUSED]");
-        DrawColorTime(screen, charset, screen->w - 100, 1.5 * CHAR_SIZE, deltaTime, GRAY);
+        DrawTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime);
+    else if (state == PAUSE || state == PAUSE_INFO || state == LOAD) {
+        DrawString(screen, charset, screen->w - (13 + 9) * CHAR_SIZE, 1.5 * CHAR_SIZE, "[PAUSED]");
+        DrawColorTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
     } else if (state == NEW_GAME)
-        DrawColorTime(screen, charset, screen->w - 100, 1.5 * CHAR_SIZE, deltaTime, GRAY);
+        DrawColorTime(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, deltaTime, GRAY);
     else
-        DrawColorString(screen, charset, screen->w - 100, 1.5 * CHAR_SIZE, "XX:XX.XXX", GRAY);
+        DrawColorString(screen, charset, screen->w - 13 * CHAR_SIZE, 1.5 * CHAR_SIZE, "XX:XX.XXX", GRAY);
 }
 
 void DrawGameOver(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
