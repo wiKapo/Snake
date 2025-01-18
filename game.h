@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include "structs.h"
+#include "file.h"
 
 #ifndef SNAKEWKP_GAME_H
 #define SNAKEWKP_GAME_H

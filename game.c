@@ -1,8 +1,10 @@
 #include "game.h"
 
+#define NOTIFICATION_TIME   1000    // milliseconds
+
 void NewGame(game_t *game);
 
-void QuickSave();
+void QuickSave(game_t *game);
 
 void QuickLoad(game_t *game);
 
@@ -28,8 +30,8 @@ void HandleInput(game_t *game) {
                         NewGame(game);
                         break;
                     case SDLK_s:
-                        if (game->state == PLAY || game->state == PAUSE) //maybe will delete pause option but idk
-                            QuickSave();
+                        if (game->state == PLAY || game->state == PAUSE || game->state == PAUSE_INFO)
+                            QuickSave(game);
                         break;
                     case SDLK_l:
                         QuickLoad(game);
@@ -74,7 +76,7 @@ void HandleInput(game_t *game) {
         }
     }
     if (snake->change_direction == 1) {
-        if (game->state == NEW_GAME) InitPlay(game);
+        if (game->state == NEW_GAME || game->state == LOAD) InitPlay(game);
         else if (game->state == PAUSE || game->state == PAUSE_INFO) game->state = PLAY;
     }
 }
@@ -205,12 +207,10 @@ int HandleScoreInput(const char *key, char name[3 + 1]) {
     else if (!strcmp(key, "Escape")) {
         name[0] = '\0';
         return 1;
-    } else if (length < 3 && strlen(key) && strcmp(key, "Return") != 0) {
-        SDL_LogInfo(0, "Adding new letter");
+    } else if (length < 3 && strlen(key) && strcmp(key, "Return") != 0)
         strcat(name, key);
-//        name[length] = *key;
-    }
-    if (strcmp(key, "")) SDL_LogInfo(0, "PRESSED: %s {%c} NAME: %s", key, *key, name);
+
+    if (strcmp(key, "") && DEBUG) SDL_LogInfo(0, "PRESSED: %s NAME: %s", key, name);
     return 0;
 }
 
@@ -280,10 +280,13 @@ void NewGame(game_t *game) {
     RemoveObject(game, PORTAL);
 }
 
-void QuickSave() {}
+void QuickSave(game_t *game) {
+    game->clock.notification = NOTIFICATION_TIME;
+    SaveGame(*game);
+}
 
 void QuickLoad(game_t *game) {
-    game->state = LOAD;
+    LoadGame(game);
 }
 
 void InitPlay(game_t *game) {

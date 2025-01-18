@@ -24,15 +24,19 @@ typedef struct {
 
     float acceleration;
     int acceleration_interval;
+
+    //points for fruits
     int apple_value;
-    int orange_delay;
     int orange_value;
+
+    //orange related
+    int orange_delay;
     int orange_chance;
-    // Orange bonus
     float bonus_slow_down;
     int bonus_shorten;
 
     int portal_count;
+    //decides what textures to use
     int fruit_mode;
 } config_t;
 
@@ -103,6 +107,7 @@ typedef struct {
     uint32_t acceleration;
     uint32_t move;
     int orange;
+    int notification;
 } clock_t;
 
 typedef struct {

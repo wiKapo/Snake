@@ -10,7 +10,10 @@ score_t *GetScores();
 
 config_t GetConfig(char *path);
 
-//void UpdateScores(score_t *scores, int score, const char *name);
 void UpdateScores(score_t *scores);
+
+void SaveGame(game_t game);
+
+void LoadGame(game_t *game);
 
 #endif //SNAKEWKP_FILE_H

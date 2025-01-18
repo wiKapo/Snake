@@ -26,6 +26,12 @@ int main(int argc, char *argv[]) {
                      (SDL_Rect) {game.area.x - CHAR_SIZE, game.area.y - CHAR_SIZE,
                                  game.area.w + 2 * CHAR_SIZE, game.area.h + 2 * CHAR_SIZE}, 0, GRASS);
 
+        if (game.clock.notification > 0) {
+            game.clock.notification -= delta;
+            DrawString(screen, game.charset, screen->w / 2 - 7.5 * CHAR_SIZE, 5.5 * CHAR_SIZE, "[SAVED TO FILE]");
+        } else
+            game.clock.notification = 0;
+
         if (DEBUG) DrawDebug(screen, game);
 
         HandleInput(&game);
@@ -89,8 +95,10 @@ int main(int argc, char *argv[]) {
                 HandleNewScore(screen, &game);
                 break;
             case LOAD:
+                DrawString(screen, game.charset, screen->w / 2 - 9 * CHAR_SIZE, 5.5 * CHAR_SIZE, "[LOADED FROM FILE]");
                 DrawGame(screen, game, &game.clock.animation);
                 game.inputState = NORMAL;
+                pauseTime = tickPrevious = 0;
                 if (game.clock.orange > 0)
                     DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
                                     game.config.orange_delay, ORANGE_COLOR);
@@ -184,7 +192,8 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
     DrawColorString(screen, game.charset, screen->w - (strlen(text) + 2) * CHAR_SIZE, 6.5 * CHAR_SIZE, text, YELLOW);
 
     //BOTTOM DEBUG
-    sprintf(text, "GAME %u DELTA %u ANIMATION %u", game.clock.game, game.clock.delta, game.clock.animation);
+    sprintf(text, "GAME %u DELTA %u ANIMATION %3u MOVE %u", game.clock.game, game.clock.delta, game.clock.animation,
+            game.clock.move);
     DrawString(screen, game.charset, 10, screen->h - 3.5 * CHAR_SIZE, text);
 
     if (game.clock.orange > 0)
@@ -198,4 +207,12 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
             game.objectPos[APPLE].x, game.objectPos[APPLE].y,
             game.objectPos[ORANGE].x, game.objectPos[ORANGE].y);
     DrawString(screen, game.charset, 10, screen->h - 1.5 * CHAR_SIZE, text);
+
+    //SNEK POS
+    DrawString(screen, game.charset, 30, screen->h - 8.5 * CHAR_SIZE, "SNAKE POS:");
+    for (int i = 0; i < game.snake.length + 1 && i < game.config.width * game.config.height; i++) {
+        sprintf(text, "%02dx%02d", game.snake.pos[i].x, game.snake.pos[i].y);
+
+        DrawString(screen, game.charset, 30 + (i % 12) * 5.5 * CHAR_SIZE, screen->h - (7.5 - i / 12) * CHAR_SIZE, text);
+    }
 }

@@ -20,4 +20,5 @@ void ResetTime(clock_t *clock) {
     clock->acceleration = 0;
     clock->animation = 0;
     clock->move = 0;
+    clock->notification = 0;
 }

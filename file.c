@@ -118,3 +118,115 @@ config_t GetConfig(char *path) {
     config.bonus_slow_down = 1 + config.bonus_slow_down;
     return config;
 }
+
+void SaveGame(game_t game) {
+    FILE *file = fopen("../qsave.txt", "w");
+
+    char *text[100];
+    config_t config = game.config;
+    sprintf(text, "%d %d\n", config.width, config.height);
+    fputs(text, file);
+    sprintf(text, "%d\n", config.max_speed);
+    fputs(text, file);
+    sprintf(text, "%f %d\n", config.acceleration, config.acceleration_interval);
+    fputs(text, file);
+    sprintf(text, "%d\n", config.apple_value);
+    fputs(text, file);
+    sprintf(text, "%d %d %d\n", config.orange_value, config.orange_delay, config.orange_chance);
+    fputs(text, file);
+    sprintf(text, "%f %d\n", config.bonus_slow_down, config.bonus_shorten);
+    fputs(text, file);
+    sprintf(text, "%d %d\n", config.portal_count, config.fruit_mode);
+    fputs(text, file);
+
+    sprintf(text, "%d %d %d %d\n", game.area.x, game.area.y, game.area.w, game.area.h);
+    fputs(text, file);
+
+    clock_t clock = game.clock;
+    sprintf(text, "%d %d\n", clock.delta, clock.move);
+    fputs(text, file);
+    sprintf(text, "%d %d\n", clock.game, clock.acceleration);
+    fputs(text, file);
+    sprintf(text, "%d %d\n", clock.animation, clock.orange);
+    fputs(text, file);
+
+    sprintf(text, "%d\n", game.score);
+    fputs(text, file);
+
+    snake_t snake = game.snake;
+    sprintf(text, "%d %d %d\n", snake.length, snake.direction, snake.speed);
+    fputs(text, file);
+
+    int amount = 2 + game.config.portal_count * 2 + game.snake.length;
+    for (int i = 0; i < amount; i++) {
+        sprintf(text, "%d %d\n", game.objectPos[i].x, game.objectPos[i].y);
+        fputs(text, file);
+    }
+
+    fclose(file);
+}
+
+void LoadGame(game_t *game) {
+    FILE *file = fopen("../qsave.txt", "r");
+
+    if (file == NULL)
+        return;
+    game->state = LOAD;
+
+    config_t *config = &game->config;
+    int oldBoardW = config->width;
+    int oldBoardH = config->height;
+
+    fscanf(file, "%d %d\n", &config->width, &config->height);
+    fscanf(file, "%d\n", &config->max_speed);
+    fscanf(file, "%f %d\n", &config->acceleration, &config->acceleration_interval);
+    fscanf(file, "%d\n", &config->apple_value);
+    fscanf(file, "%d %d %d\n", &config->orange_value, &config->orange_delay, &config->orange_chance);
+    fscanf(file, "%f %d\n", &config->bonus_slow_down, &config->bonus_shorten);
+    fscanf(file, "%d %d\n", &config->portal_count, &config->fruit_mode);
+
+    fscanf(file, "%d %d %d %d\n", &game->area.x, &game->area.y, &game->area.w, &game->area.h);
+
+    clock_t *clock = &game->clock;
+    fscanf(file, "%d %d\n", &clock->delta, &clock->move);
+    fscanf(file, "%d %d\n", &clock->game, &clock->acceleration);
+    fscanf(file, "%d %d\n", &clock->animation, &clock->orange);
+    game->clock.notification = 0;
+
+    fscanf(file, "%d\n", &game->score);
+
+    free(game->objectPos);
+    int objectCount = 2 + config->portal_count * 2;
+    game->objectPos = malloc(sizeof(point_t) * (objectCount + config->width * config->height));
+
+    snake_t *snake = &game->snake;
+    //Clear snake positions
+    for (int i = 0; i < snake->length; i++)
+        snake->pos[i] = (point_t) {NULL_POS, NULL_POS};
+
+    fscanf(file, "%d %d %d\n", &snake->length, &snake->direction, &snake->speed);
+    snake->pos = &game->objectPos[2 + config->portal_count * 2];
+    snake->change_direction = 0;
+
+    for (int i = 0; i < objectCount; i++)
+        fscanf(file, "%d %d\n", &game->objectPos[i].x, &game->objectPos[i].y);
+
+    for (int i = 0; i < snake->length; i++)
+        fscanf(file, "%d %d\n", &snake->pos[i].x, &snake->pos[i].y);
+
+    if (game->object[ORANGE].pos->x != -99)
+        game->object[ORANGE].show = 1;
+    else
+        game->object[ORANGE].show = 0;
+
+//    if (config->width != oldBoardW) { TODO change window size and board size when loading from different game
+//        if (config->width > MAX_SMALL_BOARD_WIDTH){
+//
+//        } else if (oldBoardW > MAX_SMALL_BOARD_WIDTH && config->width < MAX_SMALL_BOARD_WIDTH){
+//            SDL_SetWindowSize(game->window, 700, 700);
+//        }
+//    }
+//    if (config->height != oldBoardH) {}
+
+    fclose(file);
+}
