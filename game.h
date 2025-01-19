@@ -9,6 +9,8 @@ void HandleInput(game_t *game);
 
 void HandleMovement(snake_t *snake, SDL_Rect gameBoard);
 
+void HandlePortals(snake_t *snake, point_t *portalPos, int portal_count);
+
 const char *HandleKeyboard(state_et *state);
 
 int HandleScoreInput(const char *key, char name[3 + 1]);

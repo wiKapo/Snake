@@ -178,6 +178,18 @@ void HandleMovement(snake_t *snake, SDL_Rect gameBoard) {
     snake->change_direction = 0;
 }
 
+void HandlePortals(snake_t *snake, point_t *portalPos, int portal_count) {
+    for (int i = 0; i < snake->length; i++) {
+        for (int j = 0; j < portal_count * 2; j++) {
+            if (snake->pos[i].x == portalPos[j].x && snake->pos[i].y == portalPos[j].y) {
+                int secondPortal = j % 2 ? j - 1 : ++j;
+                snake->pos[i].x = portalPos[secondPortal].x;
+                snake->pos[i].y = portalPos[secondPortal].y;
+            }
+        }
+    }
+}
+
 const char *HandleKeyboard(state_et *state) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {

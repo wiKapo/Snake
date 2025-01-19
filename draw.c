@@ -12,7 +12,7 @@ void DrawTopBar(SDL_Surface *screen, SDL_Surface *charset, uint32_t deltaTime, s
     sprintf(text, "Score: %05d", score);
     DrawString(screen, charset, 3 * CHAR_SIZE, 1.5 * CHAR_SIZE, text);
 
-    sprintf(text, "1234ABCDEFGhI");
+    sprintf(text, "1234ABCDEFGHI");
     DrawColorString(screen, charset, screen->w / 4 - 2.5 * CHAR_SIZE, 1.5 * CHAR_SIZE, text, DARK_GRAY);
 
     if (state == PLAY)
@@ -223,12 +223,35 @@ void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint
     DrawColorString(screen, charset, x, y, text, color);
 }
 
-part_t GetDirection(const point_t last, const point_t curr, const point_t next) {
+part_t GetDirection(point_t last, point_t curr, point_t next, const point_t *portalPos, const int portalCount) {
     part_t snakePart = {BODY, NONE};
     if (last.x == NULL_POS)
         snakePart.type = HEAD;
     else if (next.x == NULL_POS)
         snakePart.type = TAIL;
+
+    for (int i = 0; i < portalCount * 2; i++) {
+        int secondPortal = 0;
+        if (last.x == portalPos[i].x && last.y == portalPos[i].y && last.x != NULL_POS && last.y != NULL_POS) {
+            secondPortal = i % 2 ? i - 1 : i + 1;
+            last.x = portalPos[secondPortal].x;
+            last.y = portalPos[secondPortal].y;
+        }
+        if (curr.x == portalPos[i].x && curr.y == portalPos[i].y && curr.x != NULL_POS && curr.y != NULL_POS) {
+            secondPortal = i % 2 ? i - 1 : i + 1;
+            curr.x = portalPos[secondPortal].x;
+            curr.y = portalPos[secondPortal].y;
+        }
+        if (next.x == portalPos[i].x && next.y == portalPos[i].y && next.x != NULL_POS && next.y != NULL_POS) {
+            secondPortal = i % 2 ? i - 1 : i + 1;
+            next.x = portalPos[secondPortal].x;
+            next.y = portalPos[secondPortal].y;
+        }
+        if (secondPortal) {
+            secondPortal = 0;
+            i++;
+        }
+    }
 
     //     Vertical movement
     if (last.x == curr.x && curr.x == next.x || (last.x == NULL_POS && curr.x == next.x) ||
@@ -266,12 +289,13 @@ part_t GetDirection(const point_t last, const point_t curr, const point_t next) 
 }
 
 void DrawSnake(
-        SDL_Surface
-        *screen,
+        SDL_Surface *screen,
         SDL_Surface *objects,
         const SDL_Rect gameArea,
         const point_t *pos,
-        const int length
+        const int length,
+        const point_t *portalPos,
+        const int portalCount
 ) {
     SDL_Rect source, destination;
     source.w = source.h = destination.w = destination.h = OBJECT_SIZE;
@@ -280,7 +304,8 @@ void DrawSnake(
         part_t snakePart = GetDirection(
                 i > 0 ? pos[i - 1] : (point_t) {NULL_POS, NULL_POS},
                 pos[i],
-                i < length - 1 ? pos[i + 1] : (point_t) {NULL_POS, NULL_POS});
+                i < length - 1 ? pos[i + 1] : (point_t) {NULL_POS, NULL_POS},
+                portalPos, portalCount);
 
         switch (snakePart.type) {
             case HEAD:
@@ -328,6 +353,7 @@ void DrawSnake(
 
 void DrawObjects(
         SDL_Surface *screen,
+        SDL_Surface *charset,
         SDL_Surface *objects,
         const SDL_Rect gameArea,
         const point_t *pos,
@@ -353,22 +379,28 @@ void DrawObjects(
         destination.x = pos[i].x * OBJECT_SIZE + gameArea.x;
         destination.y = pos[i].y * OBJECT_SIZE + gameArea.y;
         SDL_BlitSurface(objects, &source, screen, &destination);
+        if (i >= PORTAL) {
+            char num[4];
+            sprintf(num, "%d", (i - 2) / 2);
+            DrawString(screen, charset, destination.x + 2, destination.y + 2, num);
+        }
     };
 };
 
-void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
-    DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
+void DrawGame(SDL_Surface *screen, SDL_Surface *charset, game_t game, uint32_t *time) {
+    DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length, &game.objectPos[PORTAL],
+              game.config.portal_count);
     if (game.state != GAME_OVER && game.state != WIN)
         if (*time < ANIMATION_TIME / 2)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 0,
-                        game.config.fruit_mode);
+            DrawObjects(screen, charset, game.objectMap, game.area, game.objectPos,
+                        2 + game.config.portal_count * 2, 0, game.config.fruit_mode);
         else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 1,
-                        game.config.fruit_mode);
+            DrawObjects(screen, charset, game.objectMap, game.area, game.objectPos,
+                        2 + game.config.portal_count * 2, 1, game.config.fruit_mode);
         else *time -= ANIMATION_TIME;
     else
-        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 0,
-                    game.config.fruit_mode);
+        DrawObjects(screen, charset, game.objectMap, game.area, game.objectPos,
+                    2 + game.config.portal_count * 2, 0, game.config.fruit_mode);
 }
 
 #define SCORES_OFFSET 12    //number of rows

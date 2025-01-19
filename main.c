@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
                 DrawHelp(screen, game.charset);
                 break;
             case NEW_GAME:
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
                 ResetTime(&game.clock);
                 pauseTime = tickPrevious = 0;
                 game.inputState = NORMAL;
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
 
                 if (game.clock.acceleration > game.config.acceleration_interval &&
                     game.snake.speed > game.config.max_speed) {
@@ -84,6 +84,8 @@ int main(int argc, char *argv[]) {
 
                     HandleMovement(&game.snake, game.area);
 
+                    HandlePortals(&game.snake, &game.objectPos[PORTAL], game.config.portal_count);
+
                     CheckFruitCollision(&game);
                     if (game.snake.length == game.config.width * game.config.height) game.state = WIN;
                     else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
@@ -93,12 +95,12 @@ int main(int argc, char *argv[]) {
             case GAME_OVER:
             case WIN:
                 UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.inputState);
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
                 HandleNewScore(screen, &game);
                 break;
             case LOAD:
                 DrawString(screen, game.charset, screen->w / 2 - 9 * CHAR_SIZE, 5.5 * CHAR_SIZE, "[LOADED FROM FILE]");
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
                 game.inputState = NORMAL;
                 pauseTime = tickPrevious = 0;
                 if (game.clock.orange > 0)
@@ -106,14 +108,14 @@ int main(int argc, char *argv[]) {
                                     game.config.orange_delay, ORANGE_COLOR);
                 break;
             case PAUSE:
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
                 if (game.clock.orange > 0)
                     DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
                                     game.config.orange_delay, ORANGE_COLOR);
                 pauseTime = SDL_GetTicks() - game.clock.start - game.clock.delta;
                 break;
             case PAUSE_INFO:
-                DrawGame(screen, game, &game.clock.animation);
+                DrawGame(screen, game.charset, game, &game.clock.animation);
                 if (game.clock.orange > 0)
                     DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
                                     game.config.orange_delay, ORANGE_COLOR);

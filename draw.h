@@ -48,18 +48,26 @@ void DrawTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t 
 
 void DrawColorTime(SDL_Surface *screen, SDL_Surface *charset, int x, int y, uint32_t time, SDL_Color color);
 
-void DrawSnake(SDL_Surface *screen, SDL_Surface *objects, SDL_Rect gameArea, const point_t *pos, int length);
+void DrawSnake(
+        SDL_Surface *screen,
+        SDL_Surface *objects,
+        SDL_Rect gameArea,
+        const point_t *pos,
+        int length,
+        const point_t *portalPos,
+        const int portalCount);
 
 void DrawObjects(
         SDL_Surface *screen,
         SDL_Surface *charset,
+        SDL_Surface *objects,
         SDL_Rect gameArea,
         const point_t *pos,
         int length,
         int type,
         int fruitMode);
 
-void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time);
+void DrawGame(SDL_Surface *screen, SDL_Surface *charset, game_t game, uint32_t *time);
 
 void DrawScores(SDL_Surface *screen, SDL_Surface *charset, score_t *scores);
 
