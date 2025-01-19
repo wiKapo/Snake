@@ -7,6 +7,12 @@
 
 void DrawDebug(SDL_Surface *screen, game_t game);
 
+void UpdateOrange(SDL_Surface *screen, game_t *game, int delta);
+
+void UpdateAcceleration(uint32_t *acceleration, snake_t *snake, config_t config);
+
+void CheckCollisions(game_t *game);
+
 void HandleNewScore(SDL_Surface *screen, game_t *game);
 
 int main(int argc, char *argv[]) {
@@ -53,35 +59,11 @@ int main(int argc, char *argv[]) {
                 break;
             case PLAY:
                 UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.inputState);
-
-                if (game.clock.orange < 0) {
-                    game.clock.orange += delta;
-                    if (game.clock.orange == 0)
-                        if (rand() % 100 < game.config.orange_chance) {
-                            PlaceObject(&game, ORANGE);
-                            game.clock.orange = game.config.orange_delay;
-                            if (game.automatic)
-                                SaveGame(game);
-                        } else game.clock.orange = -game.config.orange_delay / 2;
-                } else if (game.clock.orange > 0) {
-                    DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
-                                    game.config.orange_delay, ORANGE_COLOR);
-                    game.clock.orange -= delta;
-                    if (game.clock.orange == 0) {
-                        RemoveObject(&game, ORANGE);
-                        game.clock.orange = -game.config.orange_delay;
-                    }
-                }
+                UpdateOrange(screen, &game, delta);
 
                 DrawGame(screen, game.charset, game, &game.clock.animation);
 
-                if (game.clock.acceleration > game.config.acceleration_interval &&
-                    game.snake.speed > game.config.max_speed) {
-                    game.snake.speed *= game.config.acceleration;
-                    game.clock.acceleration -= game.config.acceleration_interval;
-                } else if (game.snake.speed < game.config.max_speed) {
-                    game.snake.speed = game.config.max_speed;
-                }
+                UpdateAcceleration(&game.clock.acceleration, &game.snake, game.config);
 
                 if (game.clock.move > game.snake.speed) {
                     game.clock.game += game.snake.speed;
@@ -91,22 +73,8 @@ int main(int argc, char *argv[]) {
                         GetAutoDirection(game.objectPos, &game.snake, game.automatic);
 
                     HandleMovement(&game.snake, game.area);
-
                     HandlePortals(&game.snake, &game.objectPos[PORTAL], game.config.portal_count);
-
-                    CheckFruitCollision(&game);
-                    if (game.snake.length == game.config.width * game.config.height) game.state = WIN;
-                    else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0])) {
-                        if (game.automatic) {
-                            if (game.automatic == 2) {
-                                game.state = GAME_OVER;
-                                break;
-                            }
-                            game.automatic = 2;
-                            LoadGame(&game);
-                        } else
-                            game.state = GAME_OVER;
-                    }
+                    CheckCollisions(&game);
                 }
                 break;
             case GAME_OVER:
@@ -197,6 +165,56 @@ void HandleNewScore(SDL_Surface *screen, game_t *game) {
     }
 }
 
+void UpdateOrange(SDL_Surface *screen, game_t *game, int delta) {
+    clock_t *clock = &game->clock;
+    config_t config = game->config;
+    if (clock->orange < 0) {
+        clock->orange += delta;
+        if (clock->orange == 0) {
+            if (rand() % 100 < config.orange_chance) {
+                PlaceObject(game, ORANGE);
+                clock->orange = config.orange_delay;
+                if (game->automatic)
+                    SaveGame(*game);
+            } else clock->orange = -config.orange_delay / 2;
+        }
+    } else if (clock->orange > 0) {
+        DrawProgressBar(screen, game->charset, game->area, clock->orange,
+                        config.orange_delay, ORANGE_COLOR);
+        clock->orange -= delta;
+        if (clock->orange == 0) {
+            RemoveObject(game, ORANGE);
+            clock->orange = -config.orange_delay;
+        }
+    }
+}
+
+void UpdateAcceleration(uint32_t *acceleration, snake_t *snake, config_t config) {
+    if (*acceleration > config.acceleration_interval &&
+        snake->speed > config.max_speed) {
+        snake->speed *= config.acceleration;
+        *acceleration -= config.acceleration_interval;
+    } else if (snake->speed < config.max_speed)
+        snake->speed = config.max_speed;
+}
+
+void CheckCollisions(game_t *game) {
+    config_t config = game->config;
+    CheckFruitCollision(game);
+    if (game->snake.length == config.width * config.height) game->state = WIN;
+    else if (CheckSelfCollision(&game->snake) || CheckBorderCollision(game->area, game->snake.pos[0])) {
+        if (game->automatic) {
+            if (game->automatic == 2) {
+                game->state = GAME_OVER;
+                return;
+            }
+            game->automatic = 2;
+            LoadGame(game);
+        } else
+            game->state = GAME_OVER;
+    }
+}
+
 void DrawDebug(SDL_Surface *screen, game_t game) {
     char text[100];
     //TOP DEBUG
@@ -232,18 +250,26 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
             game.objectPos[ORANGE].x, game.objectPos[ORANGE].y);
     DrawString(screen, game.charset, 10, screen->h - 1.5 * CHAR_SIZE, text);
 
-    //SNEK POS
-    DrawString(screen, game.charset, 30, screen->h - 8.5 * CHAR_SIZE, "SNAKE POS:");
-    for (int i = 0; i < game.snake.length + 1 && i < game.config.width * game.config.height; i++) {
-        sprintf(text, "%02dx%02d", game.snake.pos[i].x, game.snake.pos[i].y);
-        DrawString(screen, game.charset, 30 + (i % 12) * 5.5 * CHAR_SIZE, screen->h - (7.5 - i / 12) * CHAR_SIZE, text);
-    }
+    if (DEBUG == 2) {
+        //CONFIG
+        sprintf(text, "CONFIG %02dx%02d", game.config.width, game.config.height);
+        DrawString(screen, game.charset, 30, screen->h - 13 * CHAR_SIZE,
+                   text);
 
-    //PORTAL POS
-    DrawString(screen, game.charset, 30, screen->h - 11 * CHAR_SIZE, "PORTAL POS:");
-    for (int i = 2; i < 2 + game.config.portal_count * 2; i += 2) {
-        sprintf(text, "%02dx%02d=%02dx%02d", game.object[i].pos->x, game.object[i].pos->y,
-                game.object[i + 1].pos->x, game.object[i + 1].pos->y);
-        DrawString(screen, game.charset, 30 + (i / 2 - 1) * 12 * CHAR_SIZE, screen->h - 10 * CHAR_SIZE, text);
+        //SNEK POS
+        DrawString(screen, game.charset, 30, screen->h - 8.5 * CHAR_SIZE, "SNAKE POS:");
+        for (int i = 0; i < game.snake.length + 1 && i < game.config.width * game.config.height; i++) {
+            sprintf(text, "%02dx%02d", game.snake.pos[i].x, game.snake.pos[i].y);
+            DrawString(screen, game.charset, 30 + (i % 12) * 5.5 * CHAR_SIZE, screen->h - (7.5 - i / 12) * CHAR_SIZE,
+                       text);
+        }
+
+        //PORTAL POS
+        DrawString(screen, game.charset, 30, screen->h - 11 * CHAR_SIZE, "PORTAL POS:");
+        for (int i = 2; i < 2 + game.config.portal_count * 2; i += 2) {
+            sprintf(text, "%02dx%02d=%02dx%02d", game.object[i].pos->x, game.object[i].pos->y,
+                    game.object[i + 1].pos->x, game.object[i + 1].pos->y);
+            DrawString(screen, game.charset, 30 + (i / 2 - 1) * 12 * CHAR_SIZE, screen->h - 10 * CHAR_SIZE, text);
+        }
     }
 }

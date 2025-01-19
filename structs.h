@@ -1,7 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#define DEBUG                       0   //0 - false; 1 - true
+#define DEBUG                       0   //0 - false; 1 - true; 2 - detailed
 #define NULL_POS                    (-99)
 #define OBJECT_SIZE                 32  //pixels
 #define CHAR_SIZE                   8   //pixels
