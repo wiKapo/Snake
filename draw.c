@@ -342,10 +342,10 @@ void DrawObjects(
         if (pos[i].x == NULL_POS) break;
         if (i == APPLE) {
             source.x = 6 * OBJECT_SIZE;
-            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE * fruitMode;
         } else if (i == ORANGE) {
             source.x = 7 * OBJECT_SIZE;
-            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE;
+            source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE * fruitMode;
         } else {
             source.x = 5 * OBJECT_SIZE;
             source.y = 0;
@@ -427,7 +427,7 @@ void DrawFruitPoints(
         config_t config
 ) {
     char text[50];
-    int fruitMode = 1;
+    int fruitMode = config.fruit_mode;
     SDL_BlitSurface(objects,
                     &(SDL_Rect) {6 * OBJECT_SIZE, OBJECT_SIZE + fruitMode * 2 * OBJECT_SIZE, OBJECT_SIZE, OBJECT_SIZE},
                     screen, &(SDL_Rect)
