@@ -367,7 +367,7 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
                         game.config.fruit_mode);
         else *time -= ANIMATION_TIME;
     else
-        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0, game.config.portal_count);
+        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0, game.config.fruit_mode);
 }
 
 #define SCORES_OFFSET 12    //number of rows
