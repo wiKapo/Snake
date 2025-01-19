@@ -276,8 +276,8 @@ void NewGame(game_t *game) {
     game->clock.orange = -game->config.orange_delay;
 
     PlaceObject(game, APPLE);
+    PlaceObject(game, PORTAL);
     RemoveObject(game, ORANGE);
-    RemoveObject(game, PORTAL);
 }
 
 void QuickSave(game_t *game) {
@@ -317,8 +317,11 @@ void PlaceObject(game_t *game, object_type_et type) {
     if (type == APPLE || type == ORANGE)
         DoPlace(game, type);
     else
-        for (int i = type; i < game->config.portal_count; i++)
-            if (game->object[i].show == 0) DoPlace(game, i);
+        for (int i = type; i < 2 + game->config.portal_count * 2; i += 2)
+            if (i / 2 * 40 < game->config.width * game->config.height) {
+                DoPlace(game, i);
+                DoPlace(game, i + 1);
+            }
 }
 
 void DoRemove(game_t *game, int object) {

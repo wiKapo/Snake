@@ -214,7 +214,14 @@ void DrawDebug(SDL_Surface *screen, game_t game) {
     DrawString(screen, game.charset, 30, screen->h - 8.5 * CHAR_SIZE, "SNAKE POS:");
     for (int i = 0; i < game.snake.length + 1 && i < game.config.width * game.config.height; i++) {
         sprintf(text, "%02dx%02d", game.snake.pos[i].x, game.snake.pos[i].y);
-
         DrawString(screen, game.charset, 30 + (i % 12) * 5.5 * CHAR_SIZE, screen->h - (7.5 - i / 12) * CHAR_SIZE, text);
+    }
+
+    //PORTAL POS
+    DrawString(screen, game.charset, 30, screen->h - 11 * CHAR_SIZE, "PORTAL POS:");
+    for (int i = 2; i < 2 + game.config.portal_count * 2; i += 2) {
+        sprintf(text, "%02dx%02d=%02dx%02d", game.object[i].pos->x, game.object[i].pos->y,
+                game.object[i + 1].pos->x, game.object[i + 1].pos->y);
+        DrawString(screen, game.charset, 30 + (i / 2 - 1) * 12 * CHAR_SIZE, screen->h - 10 * CHAR_SIZE, text);
     }
 }

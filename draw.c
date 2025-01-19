@@ -339,7 +339,7 @@ void DrawObjects(
     source.w = source.h = destination.w = destination.h = OBJECT_SIZE;
 
     for (int i = 0; i < length; i++) {
-        if (pos[i].x == NULL_POS) break;
+        if (pos[i].x == NULL_POS) continue;
         if (i == APPLE) {
             source.x = 6 * OBJECT_SIZE;
             source.y = type * OBJECT_SIZE + 2 * OBJECT_SIZE * fruitMode;
@@ -360,14 +360,15 @@ void DrawGame(SDL_Surface *screen, game_t game, uint32_t *time) {
     DrawSnake(screen, game.objectMap, game.area, game.snake.pos, game.snake.length);
     if (game.state != GAME_OVER && game.state != WIN)
         if (*time < ANIMATION_TIME / 2)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0,
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 0,
                         game.config.fruit_mode);
         else if (*time >= ANIMATION_TIME / 2 && *time < ANIMATION_TIME)
-            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 1,
+            DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 1,
                         game.config.fruit_mode);
         else *time -= ANIMATION_TIME;
     else
-        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count, 0, game.config.fruit_mode);
+        DrawObjects(screen, game.objectMap, game.area, game.objectPos, 2 + game.config.portal_count * 2, 0,
+                    game.config.fruit_mode);
 }
 
 #define SCORES_OFFSET 12    //number of rows
