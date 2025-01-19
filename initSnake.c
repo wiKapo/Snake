@@ -33,8 +33,8 @@ game_t initGame() {
     game.area = (SDL_Rect) {1.5 * OBJECT_SIZE + xPadding, 1.5 * OBJECT_SIZE + 3 * CHAR_SIZE + yPadding,
                             game.config.width * OBJECT_SIZE, game.config.height * OBJECT_SIZE};
 
-    game.object = malloc(sizeof(object_t) * (game.config.portal_count + 2));
-    for (int i = 0; i < game.config.portal_count; i++) {
+    game.object = malloc(sizeof(object_t) * (2 + game.config.portal_count * 2));
+    for (int i = 0; i < 2 + game.config.portal_count * 2; i++) {
         game.object[i].pos = &game.objectPos[i];
         game.object[i].show = 0;
     }

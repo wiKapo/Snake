@@ -198,14 +198,19 @@ void LoadGame(game_t *game) {
     free(game->objectPos);
     int objectCount = 2 + config->portal_count * 2;
     game->objectPos = malloc(sizeof(point_t) * (objectCount + config->width * config->height));
+    for (int i = 0; i < 2 + objectCount; i++) {
+        game->object[i].pos = &game->objectPos[i];
+        game->object[i].show = 0;
+    }
 
     snake_t *snake = &game->snake;
+    snake->pos = &game->objectPos[2 + config->portal_count * 2];
+
     //Clear snake positions
-    for (int i = 0; i < snake->length; i++)
+    for (int i = 0; i < config->width * config->height; i++)
         snake->pos[i] = (point_t) {NULL_POS, NULL_POS};
 
     fscanf(file, "%d %d %d\n", &snake->length, &snake->direction, &snake->speed);
-    snake->pos = &game->objectPos[2 + config->portal_count * 2];
     snake->change_direction = 0;
 
     for (int i = 0; i < objectCount; i++)
