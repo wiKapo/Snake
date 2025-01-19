@@ -171,7 +171,9 @@ void LoadGame(game_t *game) {
 
     if (file == NULL)
         return;
-    game->state = LOAD;
+
+    if (!game->automatic)
+        game->state = LOAD;
 
     config_t *config = &game->config;
     int oldBoardW = config->width;

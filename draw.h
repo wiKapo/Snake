@@ -80,4 +80,6 @@ void DrawFruitPoints(
         SDL_Rect gameArea,
         config_t config);
 
+void DrawAutoFail(SDL_Surface *screen, SDL_Surface *charset, int score, int time);
+
 #endif //SNAKEWKP_DRAW_H

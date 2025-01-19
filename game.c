@@ -29,6 +29,12 @@ void HandleInput(game_t *game) {
                     case SDLK_n:
                         NewGame(game);
                         break;
+                    case SDLK_a:
+                        if (game->state == NEW_GAME) {
+                            snake->change_direction = 1;
+                            game->automatic = 1;
+                        }
+                        break;
                     case SDLK_s:
                         if (game->state == PLAY || game->state == PAUSE || game->state == PAUSE_INFO)
                             QuickSave(game);
@@ -37,35 +43,36 @@ void HandleInput(game_t *game) {
                         QuickLoad(game);
                         break;
                     case SDLK_p:
-                        if (game->state == PLAY || game->state == PAUSE_INFO)
+                        if ((game->state == PLAY || game->state == PAUSE_INFO) && !game->automatic)
                             game->state = PAUSE;
                         break;
                     case SDLK_h:
-                        if (game->state == PLAY || game->state == PAUSE || game->state == PAUSE_INFO)
+                        if ((game->state == PLAY || game->state == PAUSE || game->state == PAUSE_INFO) &&
+                            !game->automatic)
                             game->state = PAUSE_INFO;
                         else
                             game->state = INFO;
                         break;
                     case SDLK_RIGHT:
-                        if (snake->direction != LEFT && !snake->change_direction) {
+                        if (snake->direction != LEFT && !snake->change_direction && !game->automatic) {
                             snake->direction = RIGHT;
                             snake->change_direction = 1;
                         }
                         break;
                     case SDLK_DOWN:
-                        if (snake->direction != UP && !snake->change_direction) {
+                        if (snake->direction != UP && !snake->change_direction && !game->automatic) {
                             snake->direction = DOWN;
                             snake->change_direction = 1;
                         }
                         break;
                     case SDLK_LEFT:
-                        if (snake->direction != RIGHT && !snake->change_direction) {
+                        if (snake->direction != RIGHT && !snake->change_direction && !game->automatic) {
                             snake->direction = LEFT;
                             snake->change_direction = 1;
                         }
                         break;
                     case SDLK_UP:
-                        if (snake->direction != DOWN && !snake->change_direction) {
+                        if (snake->direction != DOWN && !snake->change_direction && !game->automatic) {
                             snake->direction = UP;
                             snake->change_direction = 1;
                         }
@@ -248,10 +255,18 @@ void CheckFruitCollision(game_t *game) {
         PlaceObject(game, APPLE);
         snake->length++;
         game->score += game->config.apple_value;
+        if (game->automatic) {
+            SaveGame(*game);
+            game->automatic = 1;
+        }
     } else if (snake->pos[0].x == game->object[ORANGE].pos->x && snake->pos[0].y == game->object[ORANGE].pos->y) {
         RemoveObject(game, ORANGE);
         game->score += game->config.orange_value;
         game->clock.orange = -game->config.orange_delay;
+        if (game->automatic) {
+            SaveGame(*game);
+            game->automatic = 1;
+        }
         if (rand() % 100 < 50) {
             if (snake->length - game->config.bonus_shorten < game->config.start_length) {
                 for (int i = game->config.start_length; i < snake->length; i++)
@@ -287,6 +302,8 @@ void NewGame(game_t *game) {
     game->clock.game = 0;
     game->clock.orange = -game->config.orange_delay;
 
+    game->automatic = 0;
+
     PlaceObject(game, APPLE);
     PlaceObject(game, PORTAL);
     RemoveObject(game, ORANGE);
@@ -304,6 +321,8 @@ void QuickLoad(game_t *game) {
 void InitPlay(game_t *game) {
     game->state = PLAY;
     game->clock.start = SDL_GetTicks();
+    if (game->automatic)
+        SaveGame(*game);
 }
 
 int CheckPosition(point_t *pos, int length, point_t newPos) {
@@ -381,5 +400,29 @@ char *GetInputStateKey(input_et state) {
             return "TEXT";
         case DONE:
             return "DONE";
+    }
+}
+
+void GetAutoDirection(point_t *objects, snake_t *snake, int tryNum) {
+    point_t head = snake->pos[0];
+    object_type_et type = objects[ORANGE].x == NULL_POS ? APPLE : ORANGE;
+    if (tryNum == 1) {
+        if (head.x < objects[type].x)
+            snake->direction = RIGHT;
+        else if (head.x > objects[type].x)
+            snake->direction = LEFT;
+        else if (head.y < objects[type].y)
+            snake->direction = DOWN;
+        else if (head.y > objects[type].y)
+            snake->direction = UP;
+    } else {
+        if (head.y < objects[type].y)
+            snake->direction = DOWN;
+        else if (head.y > objects[type].y)
+            snake->direction = UP;
+        else if (head.x < objects[type].x)
+            snake->direction = RIGHT;
+        else if (head.x > objects[type].x)
+            snake->direction = LEFT;
     }
 }

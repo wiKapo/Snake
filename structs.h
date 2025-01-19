@@ -130,6 +130,8 @@ typedef struct {
 
     int score;
     score_t *highScores;
+
+    int automatic;
 } game_t;
 
 #endif

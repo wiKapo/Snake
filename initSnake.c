@@ -45,6 +45,8 @@ game_t initGame() {
     game.score = 0;
     game.highScores = GetScores();
 
+    game.automatic = 0;
+
     initSDL(&game);
     initAssets(&game);
 

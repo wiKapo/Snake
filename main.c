@@ -32,6 +32,9 @@ int main(int argc, char *argv[]) {
         } else
             game.clock.notification = 0;
 
+        if (game.automatic)
+            DrawString(screen, game.charset, screen->w / 2 - 5 * CHAR_SIZE, 5.5 * CHAR_SIZE, "[AUTOPLAY]");
+
         DrawFruitPoints(screen, game.charset, game.objectMap, game.area, game.config);
 
         if (DEBUG) DrawDebug(screen, game);
@@ -57,6 +60,8 @@ int main(int argc, char *argv[]) {
                         if (rand() % 100 < game.config.orange_chance) {
                             PlaceObject(&game, ORANGE);
                             game.clock.orange = game.config.orange_delay;
+                            if (game.automatic)
+                                SaveGame(game);
                         } else game.clock.orange = -game.config.orange_delay / 2;
                 } else if (game.clock.orange > 0) {
                     DrawProgressBar(screen, game.charset, game.area, game.clock.orange,
@@ -82,21 +87,36 @@ int main(int argc, char *argv[]) {
                     game.clock.game += game.snake.speed;
                     game.clock.move -= game.snake.speed;
 
+                    if (game.automatic)
+                        GetAutoDirection(game.objectPos, &game.snake, game.automatic);
+
                     HandleMovement(&game.snake, game.area);
 
                     HandlePortals(&game.snake, &game.objectPos[PORTAL], game.config.portal_count);
 
                     CheckFruitCollision(&game);
                     if (game.snake.length == game.config.width * game.config.height) game.state = WIN;
-                    else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0]))
-                        game.state = GAME_OVER;
+                    else if (CheckSelfCollision(&game.snake) || CheckBorderCollision(game.area, game.snake.pos[0])) {
+                        if (game.automatic) {
+                            if (game.automatic == 2) {
+                                game.state = GAME_OVER;
+                                break;
+                            }
+                            game.automatic = 2;
+                            LoadGame(&game);
+                        } else
+                            game.state = GAME_OVER;
+                    }
                 }
                 break;
             case GAME_OVER:
             case WIN:
                 UpdateTime(&game.clock, &delta, &tickPrevious, pauseTime, game.inputState);
                 DrawGame(screen, game.charset, game, &game.clock.animation);
-                HandleNewScore(screen, &game);
+                if (game.automatic)
+                    DrawAutoFail(screen, game.charset, game.score, game.clock.game);
+                else
+                    HandleNewScore(screen, &game);
                 break;
             case LOAD:
                 DrawString(screen, game.charset, screen->w / 2 - 9 * CHAR_SIZE, 5.5 * CHAR_SIZE, "[LOADED FROM FILE]");

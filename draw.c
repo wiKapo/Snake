@@ -476,3 +476,25 @@ void DrawFruitPoints(
     sprintf(text, "=%d pts.", config.orange_value);
     DrawString(screen, charset, screen->w - 3 * OBJECT_SIZE, gameArea.y + gameArea.h + 2.5 * CHAR_SIZE, text);
 }
+
+void DrawAutoFail(SDL_Surface *screen, SDL_Surface *charset, int score, int time) {
+    DrawBox(screen, charset, (SDL_Rect) {screen->w / 2 - 15 * CHAR_SIZE, screen->h / 3, 30 * CHAR_SIZE, 12 * CHAR_SIZE},
+            0);
+
+    char text[100];
+    sprintf(text, "AUTO PLAYER FAILED");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 1.5 * CHAR_SIZE,
+                    text, RED);
+
+    sprintf(text, "Score: %d", score);
+    DrawString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 3.5 * CHAR_SIZE, text);
+
+    DrawTime(screen, charset, screen->w / 2 - 9 * CHAR_SIZE / 2, screen->h / 3 + 5.5 * CHAR_SIZE, time);
+
+    sprintf(text, "             New game [n]");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_GREEN);
+    sprintf(text, "Quit [Esc]               ");
+    DrawColorString(screen, charset, screen->w / 2 - strlen(text) * CHAR_SIZE / 2, screen->h / 3 + 9.5 * CHAR_SIZE,
+                    text, LIGHT_RED);
+}

@@ -29,4 +29,6 @@ char *GetStateKey(state_et state);
 
 char *GetInputStateKey(input_et state);
 
+void GetAutoDirection(point_t *objects, snake_t *snake, int tryNum);
+
 #endif //SNAKEWKP_GAME_H
